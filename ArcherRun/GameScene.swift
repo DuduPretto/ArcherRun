@@ -119,8 +119,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             isCharacterJumping = false
         }
     }
+    
+    func createTexture(_ name: String) -> [SKTexture] {
+        let textureAtlas = SKTextureAtlas(named: name)
+            var frames = [SKTexture]()
+            for i in 0...textureAtlas.textureNames.count - 1{
+                frames.append(textureAtlas.textureNamed(textureAtlas.textureNames[i]))
+            }
+            return frames
+    }
 
     func moveCharacterLeft() {
+        
+        let frames:[SKTexture] = createTexture("Character")
+        character.run(SKAction.repeat(SKAction.animate(with: frames,
+                                                       timePerFrame: TimeInterval(0.1),
+                                                       resize: false, restore: false), count: 1))
+        
         var newX = character.position.x - 5.0
         if (newX < -350){
             newX = -350
@@ -134,6 +149,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     func moveCharacterRight() {
+        
+        let frames:[SKTexture] = createTexture("Character")
+        character.run(SKAction.repeat(SKAction.animate(with: frames,
+                                                       timePerFrame: TimeInterval(0.1),
+                                                       resize: false, restore: false), count: 1))
+        
         var newX = character.position.x + 5.0
         if (newX > 350){
             newX = 350
