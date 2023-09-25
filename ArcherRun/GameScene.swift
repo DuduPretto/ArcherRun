@@ -31,6 +31,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var isCharacterFacingRight = true
     var isCharacterJumping = false
+    
+    var joystick: Joystick = Joystick()
 
     override func didMove(to view: SKView) {
 
@@ -60,17 +62,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ground.zPosition = -2
         addChild(ground)
         
-        leftButton.position = CGPoint(x: -340, y: -130)
-        addChild(leftButton)
-
-        rightButton.position = CGPoint(x: -240, y: -130)
-        addChild(rightButton)
+//        leftButton.position = CGPoint(x: -340, y: -130)
+//        addChild(leftButton)
+//
+//        rightButton.position = CGPoint(x: -240, y: -130)
+//        addChild(rightButton)
        
         jumpButton.position = CGPoint(x: 340, y: -130)
         addChild(jumpButton)
      
         fireButton.position = CGPoint(x: 240, y: -130)
         addChild(fireButton)
+        
+        //joystick
+        joystick.position = CGPoint(x: -290, y: -130)
+        self.addChild(joystick)
+        
+        
         
         let spawnAction = SKAction.run { [weak self] in
             self?.spawnEnemy()
@@ -118,6 +126,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if character.physicsBody?.allContactedBodies().contains(ground.physicsBody!) ?? false {
             isCharacterJumping = false
         }
+        
+        //joystick
+        
+        if joystick.velocity.x != 0 || joystick.velocity.y != 0 {
+                  character.position = CGPointMake(character.position.x + 0.1 * joystick.velocity.x, character.position.y + 0.1 * joystick.velocity.y)
+            }
     }
 
     func moveCharacterLeft() {
