@@ -14,7 +14,9 @@ struct PhysicsCategory {
     static let ground: UInt32 = 0x1 << 3
 }
 
-class GameScene: SKScene, SKPhysicsContactDelegate {
+class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
+    
+    
     
     let scoreLabel = SKLabelNode(fontNamed: "Arial")
     var score = 0
@@ -34,10 +36,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var joystick: Joystick = Joystick()
     
+    var bowJoystick: BowJoystick = BowJoystick()
+    
     let cam = SKCameraNode()
     
+//    let frames:[SKTexture] = createTexture("Character")
 
     override func didMove(to view: SKView) {
+        self.bowJoystick.delegate = self
+
         
         //BackGroudMusic
         ArcherRunPlayerStats.shared.setSounds(true)
@@ -78,16 +85,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 //        rightButton.position = CGPoint(x: -240, y: -130)
 //        cam.addChild(rightButton)
        
-        jumpButton.position = CGPoint(x: 340, y: -130)
-        cam.addChild(jumpButton)
-     
-        fireButton.position = CGPoint(x: 240, y: -130)
-        cam.addChild(fireButton)
+//        jumpButton.position = CGPoint(x: 340, y: -130)
+//        cam.addChild(jumpButton)
+//
+//        fireButton.position = CGPoint(x: 240, y: -130)
+//        cam.addChild(fireButton)
         
-        //joystick
+        //movement joystick
         joystick.position = CGPoint(x: -290, y: -110)
         cam.addChild(joystick)
         
+        //bow joystick
+        bowJoystick.position = CGPoint(x: 290, y: -110)
+        cam.addChild(bowJoystick)
         
         
         let spawnAction = SKAction.run { [weak self] in
@@ -121,7 +131,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         for touch in touches {
             let location = touch.location(in: self)
             let locationInCam = convert(location, to: cam)
-            self.run(SoundFileName.TapFile.rawValue, onNode: self)
+//            self.run(SoundFileName.TapFile.rawValue, onNode: self)
 
             if leftButton.contains(locationInCam) {
                 isLeftButtonPressed = false
@@ -140,21 +150,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
            jumpButton.position = CGPoint(x: 340, y: -130)
            fireButton.position = CGPoint(x: 240, y: -130)
 
-        if isLeftButtonPressed {
-            moveCharacterLeft()
-        } else if isRightButtonPressed {
-            moveCharacterRight()
-        }
-        
+//        if isLeftButtonPressed {
+//            moveCharacterLeft()
+//        } else if isRightButtonPressed {
+//            moveCharacterRight()
+//        }
+//
         if character.physicsBody?.allContactedBodies().contains(ground.physicsBody!) ?? false {
             isCharacterJumping = false
         }
         
-        //joystick
+        //movement joystick
+        joystickActions()
         
-        if joystick.velocity.x != 0 || joystick.velocity.y != 0 {
-                  character.position = CGPointMake(character.position.x + 0.1 * joystick.velocity.x, character.position.y + 0.1 * joystick.velocity.y)
-            }
+        //bow joystick
+        //print("X: \(bowJoystick.velocity.x), Y: \(bowJoystick.velocity.y)")
     }
     
     func createTexture(_ name: String) -> [SKTexture] {
@@ -168,40 +178,32 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     func moveCharacterLeft() {
         
-        let frames:[SKTexture] = createTexture("Character")
-        character.run(SKAction.repeat(SKAction.animate(with: frames,
-                                                       timePerFrame: TimeInterval(0.1),
-                                                       resize: false, restore: false), count: 1))
-        
-        var newX = character.position.x - 5.0
-        if (newX < -350){
-            newX = -350
-        }
-        character.position.x = newX
-        
-        if isCharacterFacingRight {
-            character.xScale = -1.0
-            isCharacterFacingRight = false
-        }
+//        var newX = character.position.x - 5.0
+//        if (newX < -350){
+//            newX = -350
+//        }
+//        character.position.x = newX
+//
+//        if isCharacterFacingRight {
+//            character.xScale = -1.0
+//            isCharacterFacingRight = false
+//        }
     }
 
     func moveCharacterRight() {
         
-        let frames:[SKTexture] = createTexture("Character")
-        character.run(SKAction.repeat(SKAction.animate(with: frames,
-                                                       timePerFrame: TimeInterval(0.1),
-                                                       resize: false, restore: false), count: 1))
-        
-        var newX = character.position.x + 5.0
-        if (newX > 350){
-            newX = 350
-        }
-        character.position.x = newX
-        
-        if !isCharacterFacingRight {
-            character.xScale = 1.0
-            isCharacterFacingRight = true
-        }
+//
+//
+//        var newX = character.position.x + 5.0
+//        if (newX > 350){
+//            newX = 350
+//        }
+//        character.position.x = newX
+//
+//        if !isCharacterFacingRight {
+//            character.xScale = 1.0
+//            isCharacterFacingRight = true
+//        }
     }
     
     func jumpCharacter() {
@@ -294,7 +296,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         }
     }
-    
+        
     func run(_ fileName: String, onNode: SKNode) {
         if ArcherRunPlayerStats.shared.getSound(){
             onNode.run(SKAction.playSoundFileNamed(fileName, waitForCompletion: false))
@@ -302,4 +304,51 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
 
+    func joystickActions() {
+        if joystick.velocity.x != 0{
+            character.position = CGPointMake(character.position.x + 0.1 * joystick.velocity.x, character.position.y)
+            if joystick.velocity.x > 0 {
+                let frames:[SKTexture] = createTexture("Character")
+                character.run(SKAction.repeat(SKAction.animate(with: frames,
+                                                                       timePerFrame: TimeInterval(0.1),
+                                                                       resize: false, restore: false), count: 1))
+                
+                isCharacterFacingRight = true
+                character.xScale = 1.0
+                print (joystick.velocity.y)
+            } else {
+                let frames:[SKTexture] = createTexture("Character")
+                character.run(SKAction.repeat(SKAction.animate(with: frames,
+                                                                       timePerFrame: TimeInterval(0.1),
+                                                                       resize: false, restore: false), count: 1))
+                character.xScale = -1.0
+                isCharacterFacingRight = false
+            }
+        }
+        if joystick.velocity.y > 50 && !isCharacterJumping{
+            jumpCharacter()
+        }
+    }
+
+    func fireBow(vector: CGPoint) {
+        
+        let bullet = SKSpriteNode(imageNamed: "Button")
+        let xOffset: CGFloat = isCharacterFacingRight ? 20.0 : -20.0
+           bullet.position = CGPoint(x: character.position.x + xOffset, y: character.position.y)
+
+       
+        let bulletSpeed: CGFloat = 15
+        let direction = isCharacterFacingRight ? 1.0 : -1.0
+        let bulletVelocity = CGVector(dx: bulletSpeed * -vector.x, dy: bulletSpeed * -vector.y)
+
+        bullet.physicsBody = SKPhysicsBody(rectangleOf: bullet.size)
+        bullet.physicsBody?.affectedByGravity = true
+        bullet.physicsBody?.categoryBitMask = PhysicsCategory.bullet
+        bullet.physicsBody?.contactTestBitMask = PhysicsCategory.enemy
+        bullet.physicsBody?.collisionBitMask = PhysicsCategory.enemy
+
+        addChild(bullet)
+
+        bullet.physicsBody?.velocity = bulletVelocity
+    }
 }
