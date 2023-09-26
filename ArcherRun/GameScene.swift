@@ -39,6 +39,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     override func didMove(to view: SKView) {
         
+        //BackGroudMusic
+        ArcherRunPlayerStats.shared.setSounds(true)
+        
         physicsWorld.gravity = CGVector(dx: 0, dy: -9.8)
         physicsWorld.contactDelegate = self
         self.camera = cam
@@ -118,6 +121,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         for touch in touches {
             let location = touch.location(in: self)
             let locationInCam = convert(location, to: cam)
+            self.run(SoundFileName.TapFile.rawValue, onNode: self)
 
             if leftButton.contains(locationInCam) {
                 isLeftButtonPressed = false
@@ -288,6 +292,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if let enemyNode = contact.bodyB.node {
                 enemyNode.removeFromParent()
             }
+        }
+    }
+    
+    func run(_ fileName: String, onNode: SKNode) {
+        if ArcherRunPlayerStats.shared.getSound(){
+            onNode.run(SKAction.playSoundFileNamed(fileName, waitForCompletion: false))
+
         }
     }
 
