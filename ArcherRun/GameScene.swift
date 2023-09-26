@@ -32,6 +32,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var isCharacterFacingRight = true
     var isCharacterJumping = false
     
+    var joystick: Joystick = Joystick()
+    
     let cam = SKCameraNode()
     
 
@@ -66,18 +68,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ground.zPosition = -2
         addChild(ground)
         
-        leftButton.position = CGPoint(x: -340, y: -130)
-        leftButton.zPosition = 100
+//        leftButton.position = CGPoint(x: -340, y: -130)
+//        leftButton.zPosition = 100
         cam.addChild(leftButton)
-
-        rightButton.position = CGPoint(x: -240, y: -130)
-        cam.addChild(rightButton)
+//
+//        rightButton.position = CGPoint(x: -240, y: -130)
+//        cam.addChild(rightButton)
        
         jumpButton.position = CGPoint(x: 340, y: -130)
         cam.addChild(jumpButton)
      
         fireButton.position = CGPoint(x: 240, y: -130)
         cam.addChild(fireButton)
+        
+        //joystick
+        joystick.position = CGPoint(x: -290, y: -110)
+        self.addChild(joystick)
+        
+        
         
         let spawnAction = SKAction.run { [weak self] in
             self?.spawnEnemy()
@@ -137,9 +145,30 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if character.physicsBody?.allContactedBodies().contains(ground.physicsBody!) ?? false {
             isCharacterJumping = false
         }
+        
+        //joystick
+        
+        if joystick.velocity.x != 0 || joystick.velocity.y != 0 {
+                  character.position = CGPointMake(character.position.x + 0.1 * joystick.velocity.x, character.position.y + 0.1 * joystick.velocity.y)
+            }
+    }
+    
+    func createTexture(_ name: String) -> [SKTexture] {
+        let textureAtlas = SKTextureAtlas(named: name)
+            var frames = [SKTexture]()
+            for i in 0...textureAtlas.textureNames.count - 1{
+                frames.append(textureAtlas.textureNamed(textureAtlas.textureNames[i]))
+            }
+            return frames
     }
 
     func moveCharacterLeft() {
+        
+        let frames:[SKTexture] = createTexture("Character")
+        character.run(SKAction.repeat(SKAction.animate(with: frames,
+                                                       timePerFrame: TimeInterval(0.1),
+                                                       resize: false, restore: false), count: 1))
+        
         var newX = character.position.x - 5.0
         if (newX < -350){
             newX = -350
@@ -153,6 +182,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     func moveCharacterRight() {
+        
+        let frames:[SKTexture] = createTexture("Character")
+        character.run(SKAction.repeat(SKAction.animate(with: frames,
+                                                       timePerFrame: TimeInterval(0.1),
+                                                       resize: false, restore: false), count: 1))
+        
         var newX = character.position.x + 5.0
         if (newX > 350){
             newX = 350
