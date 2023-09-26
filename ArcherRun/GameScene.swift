@@ -70,7 +70,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
 //        leftButton.position = CGPoint(x: -340, y: -130)
 //        leftButton.zPosition = 100
-        cam.addChild(leftButton)
+        //cam.addChild(leftButton)
 //
 //        rightButton.position = CGPoint(x: -240, y: -130)
 //        cam.addChild(rightButton)
@@ -83,7 +83,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         //joystick
         joystick.position = CGPoint(x: -290, y: -110)
-        self.addChild(joystick)
+        cam.addChild(joystick)
         
         
         
