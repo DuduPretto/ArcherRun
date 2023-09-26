@@ -340,5 +340,50 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
         addChild(bullet)
 
         bullet.physicsBody?.velocity = bulletVelocity
+        
+        createDottedLine(scene: self, initialVelocityPoint: vector, gravity: 9.8, dotSpacing: 10)
+        
+        self.run(SKAction.wait(forDuration: 2)) {
+            bullet.removeFromParent()
+        }
+        
+        
+//            path.move(to: bullet.position)
+//            let endPoint = CGPoint(x: bullet.position.x + bulletVelocity.dx, y: bullet.position.y + bulletVelocity.dy)
+//            path.addLine(to: endPoint)
+//
+//            let dottedLine = SKShapeNode(path: path)
+//            dottedLine.strokeColor = .white
+////            dottedLine.lineDashPattern = [10, 10] // Adjust the dash pattern as needed
+////        dottedLine.
+//            addChild(dottedLine)
+//
+//            // Remove the dotted line after a short delay
+//            let removeAction = SKAction.sequence([SKAction.wait(forDuration: 0.5), SKAction.removeFromParent()])
+//            dottedLine.run(removeAction)
+    }
+    
+    func createDottedLine(scene: SKScene, initialVelocityPoint: CGPoint, gravity: CGFloat, dotSpacing: CGFloat) {
+        // Create and add dots along the trajectory
+        var currentPosition = CGPoint.zero
+        var currentVelocity = CGPoint(x: initialVelocityPoint.x * 1, y: initialVelocityPoint.y * 1)
+        
+        while currentPosition.y >= 0 {
+            let dot = SKShapeNode(circleOfRadius: 2)
+            dot.fillColor = SKColor.blue
+            dot.position = CGPoint(x: currentPosition.x + character.position.x, y: currentPosition.y + character.position.y)
+            scene.addChild(dot)
+            
+            // Calculate the time it takes to reach the next dot's position
+            let timeToNextDot = dotSpacing / currentVelocity.y
+            
+            // Update the position and velocity for the next dot
+            currentPosition.x += currentVelocity.x * timeToNextDot
+            currentPosition.y += currentVelocity.y * timeToNextDot - 0.5 * gravity * timeToNextDot * timeToNextDot
+            currentVelocity.y -= gravity * timeToNextDot
+            scene.run(SKAction.wait(forDuration: 2)) {
+                dot.removeFromParent()
+            }
+        }
     }
 }
