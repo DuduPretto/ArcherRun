@@ -31,11 +31,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var isCharacterFacingRight = true
     var isCharacterJumping = false
+    
+    let cam = SKCameraNode()
+    
 
     override func didMove(to view: SKView) {
-
+        
         physicsWorld.gravity = CGVector(dx: 0, dy: -9.8)
         physicsWorld.contactDelegate = self
+        self.camera = cam
+        addChild(cam)
+        cam.zPosition = 5
         
         //Score
         scoreLabel.text = "Score: \(score)"
@@ -61,16 +67,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(ground)
         
         leftButton.position = CGPoint(x: -340, y: -130)
-        addChild(leftButton)
+        leftButton.zPosition = 100
+        cam.addChild(leftButton)
 
         rightButton.position = CGPoint(x: -240, y: -130)
-        addChild(rightButton)
+        cam.addChild(rightButton)
        
         jumpButton.position = CGPoint(x: 340, y: -130)
-        addChild(jumpButton)
+        cam.addChild(jumpButton)
      
         fireButton.position = CGPoint(x: 240, y: -130)
-        addChild(fireButton)
+        cam.addChild(fireButton)
         
         let spawnAction = SKAction.run { [weak self] in
             self?.spawnEnemy()
@@ -85,13 +92,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches {
             let location = touch.location(in: self)
-            if leftButton.contains(location) {
+            let locationInCam = convert(location, to: cam)
+
+            if leftButton.contains(locationInCam) {
                 isLeftButtonPressed = true
-            } else if rightButton.contains(location) {
+            } else if rightButton.contains(locationInCam) {
                 isRightButtonPressed = true
-            } else if jumpButton.contains(location) && !isCharacterJumping {
+            } else if jumpButton.contains(locationInCam) && !isCharacterJumping {
                 jumpCharacter()
-            } else if fireButton.contains(location) {
+            } else if fireButton.contains(locationInCam) {
                 fireBullet()
             }
         }
@@ -100,15 +109,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches {
             let location = touch.location(in: self)
-            if leftButton.contains(location) {
+            let locationInCam = convert(location, to: cam)
+
+            if leftButton.contains(locationInCam) {
                 isLeftButtonPressed = false
-            } else if rightButton.contains(location) {
+            } else if rightButton.contains(locationInCam) {
                 isRightButtonPressed = false
             }
         }
     }
 
     override func update(_ currentTime: TimeInterval) {
+        
+        cam.position = character.position
+        
+        leftButton.position = CGPoint(x: -340, y: -130)
+           rightButton.position = CGPoint(x: -240, y: -130)
+           jumpButton.position = CGPoint(x: 340, y: -130)
+           fireButton.position = CGPoint(x: 240, y: -130)
+
         if isLeftButtonPressed {
             moveCharacterLeft()
         } else if isRightButtonPressed {
