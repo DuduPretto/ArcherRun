@@ -15,6 +15,9 @@ struct PhysicsCategory {
 }
 
 class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
+    var lastJumpTime: TimeInterval = 0.0
+    let jumpCooldown: TimeInterval = 0.5
+
     
     
     
@@ -41,6 +44,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
     let cam = SKCameraNode()
     
 //    let frames:[SKTexture] = createTexture("Character")
+    
+    func isCharacterTouchingMask(mask: UInt32) -> Bool {
+        // Get all bodies in contact with the character
+        let contactedBodies = character.physicsBody?.allContactedBodies() ?? []
+
+        // Check if any of the contacted bodies have the specified collision mask
+        for contactedBody in contactedBodies {
+            if contactedBody.categoryBitMask == mask {
+                return true
+            }
+        }
+
+        return false
+    }
 
     override func didMove(to view: SKView) {
         self.bowJoystick.delegate = self
@@ -80,14 +97,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
         
 //        leftButton.position = CGPoint(x: -340, y: -130)
 //        leftButton.zPosition = 100
-        //cam.addChild(leftButton)
+//        cam.addChild(leftButton)
 //
 //        rightButton.position = CGPoint(x: -240, y: -130)
 //        cam.addChild(rightButton)
-       
-//        jumpButton.position = CGPoint(x: 340, y: -130)
-//        cam.addChild(jumpButton)
 //
+//        jumpButton.position = CGPoint(x: 340, y: -10)
+//        cam.addChild(jumpButton)
+
 //        fireButton.position = CGPoint(x: 240, y: -130)
 //        cam.addChild(fireButton)
         
@@ -96,7 +113,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
         cam.addChild(joystick)
         
         //bow joystick
-        bowJoystick.position = CGPoint(x: 290, y: -110)
+        bowJoystick.position = CGPoint(x: 240, y: -110)
         cam.addChild(bowJoystick)
         
         
@@ -155,8 +172,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
 //        } else if isRightButtonPressed {
 //            moveCharacterRight()
 //        }
-//
-        if character.physicsBody?.allContactedBodies().contains(ground.physicsBody!) ?? false {
+
+        let isTouchingMask = isCharacterTouchingMask(mask: 4294967295)
+        if isTouchingMask {
             isCharacterJumping = false
         }
         
@@ -206,12 +224,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
 //        }
     }
     
+  
+    
     func jumpCharacter() {
-        let jumpForce = CGVector(dx: 0.0, dy: 9000.0)
-        character.physicsBody?.applyForce(jumpForce)
-        print("jump")
-        isCharacterJumping = true
+        let currentTime = CACurrentMediaTime()
+        
+        // Check if enough time has passed since the last jump
+        if currentTime - lastJumpTime >= jumpCooldown {
+            let jumpForce = CGVector(dx: 0.0, dy: 9000.0)
+            character.physicsBody?.applyForce(jumpForce)
+            print("jump")
+            isCharacterJumping = true
+            // Update the last jump time
+            lastJumpTime = currentTime
+        }
     }
+
     
     func fireBullet() {
         let bullet = SKSpriteNode(imageNamed: "Button")
