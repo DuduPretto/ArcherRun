@@ -8,6 +8,7 @@
 
 import Foundation
 import SpriteKit
+import SwiftUI
 
 class Joystick : SKNode {
     let kThumbSpringBackDuration: Double =  0.3
@@ -17,6 +18,9 @@ class Joystick : SKNode {
     var travelLimit: CGPoint = CGPointMake(0, 0)
     var angularVelocity: CGFloat = 0.0
     var size: Float = 0.0
+//    @Published var releaseForce: CGPoint = CGPoint(x: 0, y: 0)
+    
+    
     
     func anchorPointInPoints() -> CGPoint {
         return CGPointMake(0, 0)
@@ -70,7 +74,9 @@ class Joystick : SKNode {
     }
     
     
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?){
+       // print("velocidade antes de acabar: \(self.velocity)")
+
         self.resetVelocity()
     }
     
@@ -86,3 +92,19 @@ class Joystick : SKNode {
         self.thumbNode.run(easeOut)
     }
 }
+
+class BowJoystick: Joystick{
+    weak var delegate: FireBowDelegate?
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?){
+        print("velocidade antes de acabar: \(self.velocity)")
+        delegate?.fireBow(vector: self.velocity)
+        self.resetVelocity()
+    }
+}
+
+protocol FireBowDelegate: AnyObject{
+    func fireBow(vector: CGPoint)
+}
+
+
