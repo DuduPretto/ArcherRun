@@ -75,7 +75,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(fireButton)
         
         //joystick
-        joystick.position = CGPoint(x: -290, y: -130)
+        joystick.position = CGPoint(x: -290, y: -110)
         self.addChild(joystick)
         
         
