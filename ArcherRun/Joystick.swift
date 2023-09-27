@@ -1,16 +1,8 @@
-//
-//  Joystick.swift
-//  Swift-SpriteKit-Joystick
-//
-//  Created by Derrick Liu on 12/14/14.
-//  Copyright (c) 2014 TheSneakyNarwhal. All rights reserved.
-//
-
 import Foundation
 import SpriteKit
 import SwiftUI
 
-class Joystick : SKNode {
+class Joystick: SKNode {
     let kThumbSpringBackDuration: Double =  0.3
     let backdropNode, thumbNode: SKSpriteNode
     var isTracking: Bool = false
@@ -18,9 +10,6 @@ class Joystick : SKNode {
     var travelLimit: CGPoint = CGPointMake(0, 0)
     var angularVelocity: CGFloat = 0.0
     var size: Float = 0.0
-//    @Published var releaseForce: CGPoint = CGPoint(x: 0, y: 0)
-    
-    
     
     func anchorPointInPoints() -> CGPoint {
         return CGPointMake(0, 0)
@@ -75,8 +64,6 @@ class Joystick : SKNode {
     
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?){
-       // print("velocidade antes de acabar: \(self.velocity)")
-
         self.resetVelocity()
     }
     
@@ -100,6 +87,30 @@ class BowJoystick: Joystick{
         print("velocidade antes de acabar: \(self.velocity)")
         delegate?.fireBow(vector: self.velocity)
         self.resetVelocity()
+    }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        for touch in touches {
+            let touchPoint: CGPoint = touch.location(in: self)
+            
+            if self.isTracking == true && sqrtf(powf((Float(touchPoint.x) - Float(self.thumbNode.position.x)), 2) + powf((Float(touchPoint.y) - Float(self.thumbNode.position.y)), 2)) < Float(self.thumbNode.size.width) {
+                if sqrtf(powf((Float(touchPoint.x) - Float(self.anchorPointInPoints().x)), 2) + powf((Float(touchPoint.y) - Float(self.anchorPointInPoints().y)), 2)) <= Float(self.thumbNode.size.width) {
+                    let moveDifference: CGPoint = CGPointMake(touchPoint.x - self.anchorPointInPoints().x, touchPoint.y - self.anchorPointInPoints().y)
+                    self.thumbNode.position = CGPointMake(self.anchorPointInPoints().x + moveDifference.x, self.anchorPointInPoints().y + moveDifference.y)
+                } else {
+                    let vX: Double = Double(touchPoint.x) - Double(self.anchorPointInPoints().x)
+                    let vY: Double = Double(touchPoint.y) - Double(self.anchorPointInPoints().y)
+                    let magV: Double = sqrt(vX*vX + vY*vY)
+                    let aX: Double = Double(self.anchorPointInPoints().x) + vX / magV * Double(self.thumbNode.size.width)
+                    let aY: Double = Double(self.anchorPointInPoints().y) + vY / magV * Double(self.thumbNode.size.width)
+                    self.thumbNode.position = CGPointMake(CGFloat(aX), CGFloat(aY))
+                }
+            }
+            self.velocity = CGPointMake(((self.thumbNode.position.x - self.anchorPointInPoints().x)), ((self.thumbNode.position.y - self.anchorPointInPoints().y)))
+            self.angularVelocity = -atan2(self.thumbNode.position.x - self.anchorPointInPoints().x, self.thumbNode.position.y - self.anchorPointInPoints().y)
+        }
+        
+        print("movendo o joystick")
     }
 }
 
