@@ -59,8 +59,6 @@ class Joystick: SKNode {
             }
             self.velocity = CGPointMake(((self.thumbNode.position.x - self.anchorPointInPoints().x)), ((self.thumbNode.position.y - self.anchorPointInPoints().y)))
             self.angularVelocity = -atan2(self.thumbNode.position.x - self.anchorPointInPoints().x, self.thumbNode.position.y - self.anchorPointInPoints().y)
-            
-            
         }
     }
     
@@ -85,10 +83,21 @@ class Joystick: SKNode {
 class BowJoystick: Joystick{
     weak var delegate: FireBowDelegate?
     
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        delegate?.toogleShot()
+        for touch in touches {
+            let touchPoint: CGPoint = touch.location(in: self)
+            if self.isTracking == false && CGRectContainsPoint(self.thumbNode.frame, touchPoint) {
+                self.isTracking = true
+            }
+        }
+    }
+    
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?){
         print("velocidade antes de acabar: \(self.velocity)")
         delegate?.fireBow(vector: self.velocity)
         self.resetVelocity()
+        delegate?.toogleShot()
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -114,12 +123,11 @@ class BowJoystick: Joystick{
             delegate?.drawDottetLine(initialVelocityPoint: velocity, gravity: 6.8)
         }
     }
-    
 }
 
 protocol FireBowDelegate: AnyObject{
     func fireBow(vector: CGPoint)
-    
+    func toogleShot()
     func drawDottetLine(initialVelocityPoint: CGPoint, gravity: CGFloat)
 }
 
