@@ -1,16 +1,8 @@
-//
-//  Joystick.swift
-//  Swift-SpriteKit-Joystick
-//
-//  Created by Derrick Liu on 12/14/14.
-//  Copyright (c) 2014 TheSneakyNarwhal. All rights reserved.
-//
-
 import Foundation
 import SpriteKit
 import SwiftUI
 
-class Joystick : SKNode {
+class Joystick: SKNode {
     let kThumbSpringBackDuration: Double =  0.3
     let backdropNode, thumbNode: SKSpriteNode
     var isTracking: Bool = false
@@ -18,9 +10,6 @@ class Joystick : SKNode {
     var travelLimit: CGPoint = CGPointMake(0, 0)
     var angularVelocity: CGFloat = 0.0
     var size: Float = 0.0
-//    @Published var releaseForce: CGPoint = CGPoint(x: 0, y: 0)
-    
-    
     
     func anchorPointInPoints() -> CGPoint {
         return CGPointMake(0, 0)
@@ -77,8 +66,6 @@ class Joystick : SKNode {
     
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?){
-       // print("velocidade antes de acabar: \(self.velocity)")
-
         self.resetVelocity()
     }
     
