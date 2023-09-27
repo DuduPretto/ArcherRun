@@ -139,8 +139,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
 
             if leftButton.contains(locationInCam) {
                 isLeftButtonPressed = false
+                character.physicsBody?.velocity.dx = 0
             } else if rightButton.contains(locationInCam) {
                 isRightButtonPressed = false
+                character.physicsBody?.velocity.dx = 0
             }
             stopAnimation()
         }
@@ -181,9 +183,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
     }
 
     func moveCharacterLeft() {
-        let newX = character.position.x - 7.0
-       
-        character.position.x = newX
+        let moveSpeed: CGFloat = 300.0
+        character.physicsBody?.velocity.dx = -moveSpeed
 
         if isCharacterFacingRight {
             character.xScale = -1.0
@@ -192,9 +193,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
     }
 
     func moveCharacterRight() {
-        let newX = character.position.x + 7.0
-        
-        character.position.x = newX
+        let moveSpeed: CGFloat = 300.0
+        character.physicsBody?.velocity.dx = moveSpeed
 
         if !isCharacterFacingRight {
             character.xScale = 1.0
