@@ -33,6 +33,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
     
     var aimLine = [SKShapeNode]()
     
+    var enemies: [Enemy] = []
+    let enemySpawnRate: TimeInterval = 2.0
+    var lastSpawnTime: TimeInterval = 0.0
+    
 //    let frames:[SKTexture] = createTexture("Character")
     
     func isCharacterTouchingMask(mask: UInt32) -> Bool {
@@ -78,11 +82,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
         addChild(character)
         
         //Chão
-        ground.position = CGPoint(x: 0, y: -170)
-        ground.physicsBody = SKPhysicsBody(rectangleOf: ground.size)
-        ground.physicsBody?.isDynamic = false
-        ground.zPosition = -2
-        addChild(ground)
+//        ground.position = CGPoint(x: 0, y: -170)
+//        ground.physicsBody = SKPhysicsBody(rectangleOf: ground.size)
+//        ground.physicsBody?.isDynamic = false
+//        ground.zPosition = -2
+//        addChild(ground)
         
         leftButton.position = CGPoint(x: -340, y: -130)
         leftButton.zPosition = 100
@@ -99,7 +103,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
         cam.addChild(bowJoystick)
         
         let spawnAction = SKAction.run { [weak self] in
-            self?.spawnEnemy()
+            self?.spawnEnemyy()
         }
         let waitAction = SKAction.wait(forDuration: 2.0)
         let sequenceAction = SKAction.sequence([spawnAction, waitAction])
@@ -162,6 +166,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
             isCharacterJumping = false
         }
         
+        updateEnemyAI()
+        
         character.position = CGPointMake(character.position.x + 0.1 * joystick.velocity.x, character.position.y)
     }
     
@@ -201,7 +207,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
         
         // Check if enough time has passed since the last jump
         if currentTime - lastJumpTime >= jumpCooldown {
-            let jumpForce = CGVector(dx: 0.0, dy: 9000.0)
+            let jumpForce = CGVector(dx: 0.0, dy: 4000.0)
             character.physicsBody?.applyForce(jumpForce)
             print("jump")
             isCharacterJumping = true
@@ -262,9 +268,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
     
     func randomSpawnPosition() -> CGPoint {
         let minX: CGFloat = -200.0
-        let maxX: CGFloat = 200.0
+        let maxX: CGFloat = 2000.0
         let minY: CGFloat = -100.0
-        let maxY: CGFloat = 100.0
+        let maxY: CGFloat = 1000.0
 
         let randomX = CGFloat.random(in: minX...maxX)
         let randomY = CGFloat.random(in: minY...maxY)
@@ -416,4 +422,87 @@ extension GameScene {
     func stopAnimation() {
         character.removeAllActions()
     }
+    
+    func spawnEnemyy() {
+            let currentTime = CACurrentMediaTime()
+
+            if currentTime - lastSpawnTime >= enemySpawnRate {
+                lastSpawnTime = currentTime
+
+                let enemy = Enemy(target: character)
+                enemy.position = randomSpawnPosition()
+                addChild(enemy)
+                enemies.append(enemy)
+            }
+        }
+
+        func updateEnemyAI() {
+            for enemy in enemies {
+                
+                    enemy.update()
+                
+            }
+        }
+}
+
+class Enemy: SKSpriteNode {
+    var target: SKSpriteNode?
+    var speeed: CGFloat = 100.0 // Adjust the speed as needed
+    var isJumping = false
+
+    init(target: SKSpriteNode) {
+        self.target = target
+        let texture = SKTexture(imageNamed: "Enemy")
+        super.init(texture: texture, color: .clear, size: texture.size())
+        configurePhysics()
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func configurePhysics() {
+        physicsBody = SKPhysicsBody(rectangleOf: size)
+        physicsBody?.categoryBitMask = PhysicsCategory.enemy
+        //physicsBody?.collisionBitMask = PhysicsCategory.ground
+        physicsBody?.contactTestBitMask = PhysicsCategory.character
+        physicsBody?.affectedByGravity = true
+        physicsBody?.allowsRotation = false
+    }
+
+    func update() {
+            if let target = target {
+                // Calculate vector towards the target (seek behavior)
+                let dx = target.position.x - position.x
+                let moveSpeed: CGFloat = 100.0
+               
+                
+                if(abs(dx) < 600){
+                    let moveSpeed: CGFloat = 100.0
+                           physicsBody?.velocity.dx = dx > 0 ? moveSpeed : -moveSpeed
+                }
+                
+                // Check if the enemy is stuck in an obstacle
+                if isJumping {
+                    return
+                }
+                
+                if physicsBody?.velocity.dx == 0 {
+                    // Enemy is stuck; make it jump
+                    jump()
+                }
+            }
+        }
+    
+    func jump() {
+            isJumping = true
+            let jumpForce = CGVector(dx: 0.0, dy: 400.0) // Adjust the jump force as needed
+            physicsBody?.applyForce(jumpForce)
+            
+            // After jumping, set a delay before allowing another jump
+            let jumpDelay = SKAction.wait(forDuration: 1.0) // Adjust the delay duration as needed
+            run(jumpDelay) { [weak self] in
+                self?.isJumping = false
+            }
+        }
 }
