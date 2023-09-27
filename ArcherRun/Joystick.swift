@@ -70,6 +70,8 @@ class Joystick : SKNode {
             }
             self.velocity = CGPointMake(((self.thumbNode.position.x - self.anchorPointInPoints().x)), ((self.thumbNode.position.y - self.anchorPointInPoints().y)))
             self.angularVelocity = -atan2(self.thumbNode.position.x - self.anchorPointInPoints().x, self.thumbNode.position.y - self.anchorPointInPoints().y)
+            
+            
         }
     }
     
@@ -101,10 +103,37 @@ class BowJoystick: Joystick{
         delegate?.fireBow(vector: self.velocity)
         self.resetVelocity()
     }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        for touch in touches {
+            let touchPoint: CGPoint = touch.location(in: self)
+            
+            if self.isTracking == true && sqrtf(powf((Float(touchPoint.x) - Float(self.thumbNode.position.x)), 2) + powf((Float(touchPoint.y) - Float(self.thumbNode.position.y)), 2)) < Float(self.thumbNode.size.width) {
+                if sqrtf(powf((Float(touchPoint.x) - Float(self.anchorPointInPoints().x)), 2) + powf((Float(touchPoint.y) - Float(self.anchorPointInPoints().y)), 2)) <= Float(self.thumbNode.size.width) {
+                    let moveDifference: CGPoint = CGPointMake(touchPoint.x - self.anchorPointInPoints().x, touchPoint.y - self.anchorPointInPoints().y)
+                    self.thumbNode.position = CGPointMake(self.anchorPointInPoints().x + moveDifference.x, self.anchorPointInPoints().y + moveDifference.y)
+                } else {
+                    let vX: Double = Double(touchPoint.x) - Double(self.anchorPointInPoints().x)
+                    let vY: Double = Double(touchPoint.y) - Double(self.anchorPointInPoints().y)
+                    let magV: Double = sqrt(vX*vX + vY*vY)
+                    let aX: Double = Double(self.anchorPointInPoints().x) + vX / magV * Double(self.thumbNode.size.width)
+                    let aY: Double = Double(self.anchorPointInPoints().y) + vY / magV * Double(self.thumbNode.size.width)
+                    self.thumbNode.position = CGPointMake(CGFloat(aX), CGFloat(aY))
+                }
+            }
+            self.velocity = CGPointMake(((self.thumbNode.position.x - self.anchorPointInPoints().x)), ((self.thumbNode.position.y - self.anchorPointInPoints().y)))
+            self.angularVelocity = -atan2(self.thumbNode.position.x - self.anchorPointInPoints().x, self.thumbNode.position.y - self.anchorPointInPoints().y)
+            
+            delegate?.drawDottetLine(initialVelocityPoint: velocity, gravity: 6.8)
+        }
+    }
+    
 }
 
 protocol FireBowDelegate: AnyObject{
     func fireBow(vector: CGPoint)
+    
+    func drawDottetLine(initialVelocityPoint: CGPoint, gravity: CGFloat)
 }
 
 

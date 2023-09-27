@@ -15,6 +15,10 @@ struct PhysicsCategory {
 }
 
 class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
+    
+    
+    
+    
     var lastJumpTime: TimeInterval = 0.0
     let jumpCooldown: TimeInterval = 0.5
 
@@ -42,6 +46,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
     var bowJoystick: BowJoystick = BowJoystick()
     
     let cam = SKCameraNode()
+    
+    var aimLine = [SKShapeNode]()
     
 //    let frames:[SKTexture] = createTexture("Character")
     
@@ -333,7 +339,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
     }
 
     func joystickActions() {
-        if joystick.velocity.x != 0{
+        if joystick.velocity.x != 0 {
             character.position = CGPointMake(character.position.x + 0.1 * joystick.velocity.x, character.position.y)
             if joystick.velocity.x > 0 {
                 let frames:[SKTexture] = createTexture("Character")
@@ -379,47 +385,41 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
 
         bullet.physicsBody?.velocity = bulletVelocity
         
-        createDottedLine(scene: self, initialVelocityPoint: vector, gravity: 9.8, dotSpacing: 10)
-        
         self.run(SKAction.wait(forDuration: 2)) {
             bullet.removeFromParent()
         }
-        
-        
-//            path.move(to: bullet.position)
-//            let endPoint = CGPoint(x: bullet.position.x + bulletVelocity.dx, y: bullet.position.y + bulletVelocity.dy)
-//            path.addLine(to: endPoint)
-//
-//            let dottedLine = SKShapeNode(path: path)
-//            dottedLine.strokeColor = .white
-////            dottedLine.lineDashPattern = [10, 10] // Adjust the dash pattern as needed
-////        dottedLine.
-//            addChild(dottedLine)
-//
-//            // Remove the dotted line after a short delay
-//            let removeAction = SKAction.sequence([SKAction.wait(forDuration: 0.5), SKAction.removeFromParent()])
-//            dottedLine.run(removeAction)
     }
+ 
     
-    func createDottedLine(scene: SKScene, initialVelocityPoint: CGPoint, gravity: CGFloat, dotSpacing: CGFloat) {
+    func drawDottetLine(initialVelocityPoint: CGPoint, gravity: CGFloat = 6.8) {
+        for dot in aimLine{
+            dot.removeFromParent()
+        }
+        let dotSpacing: CGFloat = 10
+        let scene = self
         // Create and add dots along the trajectory
         var currentPosition = CGPoint.zero
         var currentVelocity = CGPoint(x: initialVelocityPoint.x * 1, y: initialVelocityPoint.y * 1)
         
+        // Calculate the time it takes to reach the next dot's position
+        let totalTime = currentVelocity.y / gravity
+        let timeToNextDot = totalTime / dotSpacing
+        
         while currentPosition.y >= 0 {
             let dot = SKShapeNode(circleOfRadius: 2)
             dot.fillColor = SKColor.blue
+            dot.name = "dot"
             dot.position = CGPoint(x: currentPosition.x + character.position.x, y: currentPosition.y + character.position.y)
             scene.addChild(dot)
+            aimLine.append(dot)
             
-            // Calculate the time it takes to reach the next dot's position
-            let timeToNextDot = dotSpacing / currentVelocity.y
+            
             
             // Update the position and velocity for the next dot
             currentPosition.x += currentVelocity.x * timeToNextDot
-            currentPosition.y += currentVelocity.y * timeToNextDot - 0.5 * gravity * timeToNextDot * timeToNextDot
+            currentPosition.y += currentVelocity.y * timeToNextDot - 0.5 * gravity * (timeToNextDot * timeToNextDot)
             currentVelocity.y -= gravity * timeToNextDot
-            scene.run(SKAction.wait(forDuration: 2)) {
+            scene.run(SKAction.wait(forDuration: 1)) {
                 dot.removeFromParent()
             }
         }
