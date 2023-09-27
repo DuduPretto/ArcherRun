@@ -428,6 +428,9 @@ extension GameScene: FireBowDelegate {
                 currentVelocity.y -= gravity * timeToNextDot
 //                scene.run(SKAction.wait(forDuration: 1)) {
 //                    dot.removeFromParent()
+                if currentPosition.y == 0{
+                    break
+                }
 //                }
             }
 //        }
