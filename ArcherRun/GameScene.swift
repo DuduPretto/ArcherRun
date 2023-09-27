@@ -371,24 +371,29 @@ extension GameScene: FireBowDelegate {
         
         let bullet = SKSpriteNode(imageNamed: "Button")
         let xOffset: CGFloat = isCharacterFacingRight ? 20.0 : -20.0
-           bullet.position = CGPoint(x: character.position.x + xOffset, y: character.position.y)
-
-       
+        bullet.position = CGPoint(x: character.position.x + xOffset, y: character.position.y)
+        
+        
         let bulletSpeed: CGFloat = 15
         let bulletVelocity = CGVector(dx: bulletSpeed * -vector.x, dy: bulletSpeed * -vector.y)
-
+        
         bullet.physicsBody = SKPhysicsBody(rectangleOf: bullet.size)
         bullet.physicsBody?.affectedByGravity = true
         bullet.physicsBody?.categoryBitMask = PhysicsCategory.bullet
         bullet.physicsBody?.contactTestBitMask = PhysicsCategory.enemy
         bullet.physicsBody?.collisionBitMask = PhysicsCategory.enemy
-
+        
         addChild(bullet)
-
+        
         bullet.physicsBody?.velocity = bulletVelocity
         
         self.run(SKAction.wait(forDuration: 2)) {
             bullet.removeFromParent()
+        }
+        for dot in aimLine{
+            self.run(SKAction.wait(forDuration: 1)) {
+                dot.removeFromParent()
+            }
         }
     }
     
@@ -396,6 +401,7 @@ extension GameScene: FireBowDelegate {
         for dot in aimLine{
             dot.removeFromParent()
         }
+        aimLine = []
         let dotSpacing: CGFloat = 10
         let scene = self
         // Create and add dots along the trajectory
@@ -406,6 +412,7 @@ extension GameScene: FireBowDelegate {
         let totalTime = currentVelocity.y / gravity
         let timeToNextDot = totalTime / dotSpacing
         print(initialVelocityPoint.y)
+        //        if initialVelocityPoint.y < 0 {
 //        if initialVelocityPoint.y < 0 {
             while currentPosition.y >= 0 {
                 let dot = SKShapeNode(circleOfRadius: 2)
@@ -419,28 +426,12 @@ extension GameScene: FireBowDelegate {
                 currentPosition.x += currentVelocity.x * timeToNextDot
                 currentPosition.y += currentVelocity.y * timeToNextDot - 0.5 * gravity * (timeToNextDot * timeToNextDot)
                 currentVelocity.y -= gravity * timeToNextDot
-                scene.run(SKAction.wait(forDuration: 1)) {
-                    dot.removeFromParent()
-                }
-            }
-//        } else {
-//            while currentPosition.y >= 0 {
-//                let dot = SKShapeNode(circleOfRadius: 2)
-//                dot.fillColor = SKColor.blue
-//                dot.name = "dot"
-//                dot.position = CGPoint(x: currentPosition.x + character.position.x, y: currentPosition.y + character.position.y)
-//                scene.addChild(dot)
-//                aimLine.append(dot)
-//
-//                // Update the position and velocity for the next dot
-//                currentPosition.x += currentVelocity.x * timeToNextDot
-//                currentPosition.y -= currentVelocity.y * timeToNextDot - 0.5 * gravity * (timeToNextDot * timeToNextDot)
-//                currentVelocity.y += gravity * timeToNextDot
 //                scene.run(SKAction.wait(forDuration: 1)) {
 //                    dot.removeFromParent()
 //                }
-//            }
+            }
 //        }
-        
-    }
-}
+            }
+            
+        }
+    
