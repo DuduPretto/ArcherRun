@@ -8,20 +8,37 @@
 import UIKit
 import SpriteKit
 import GameplayKit
+import AVFoundation
 
 class GameViewController: UIViewController {
 
+    lazy var backgroundMusic: AVAudioPlayer? = {
+        guard let url = Bundle.main.url(forResource: SoundFileName.Background.rawValue, withExtension: "mp3") else { return nil }
+        
+        do {
+            let player = try AVAudioPlayer(contentsOf: url)
+            player.numberOfLoops = -1
+            return player
+        } catch {
+            return nil
+        }
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         if let view = self.view as! SKView? {
             // Load the SKScene from 'GameScene.sks'
             if let scene = SKScene(fileNamed: "GameScene") {
+                
                 // Set the scale mode to scale to fit the window
                 scene.scaleMode = .aspectFill
                 
                 // Present the scene
                 view.presentScene(scene)
+                
+                // Play Music Background
+                playStopBackgroundMusic()
             }
             
             view.ignoresSiblingOrder = true
@@ -41,5 +58,13 @@ class GameViewController: UIViewController {
 
     override var prefersStatusBarHidden: Bool {
         return true
+    }
+    
+    func playStopBackgroundMusic() {
+        if ArcherRunPlayerStats.shared.getSound() {
+            backgroundMusic?.play()
+        } else {
+            backgroundMusic?.stop()
+        }
     }
 }
