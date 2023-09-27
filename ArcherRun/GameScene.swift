@@ -216,7 +216,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
         let xOffset: CGFloat = isCharacterFacingRight ? 20.0 : -20.0
            bullet.position = CGPoint(x: character.position.x + xOffset, y: character.position.y)
 
-       
         let bulletSpeed: CGFloat = 2000.0
         let direction = isCharacterFacingRight ? 1.0 : -1.0
         let bulletVelocity = CGVector(dx: bulletSpeed * direction, dy: 0)
