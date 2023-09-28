@@ -58,7 +58,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         self.bowJoystick.delegate = self
         
         //BackGroudMusic
-        ArcherRunPlayerStats.shared.setSounds(true)
+        ArcherRunPlayerStats.shared.setSounds(false)
         
         physicsWorld.gravity = CGVector(dx: 0, dy: -9.8)
         physicsWorld.contactDelegate = self

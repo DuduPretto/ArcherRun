@@ -95,11 +95,11 @@ class BowJoystick: Joystick{
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?){
         print("velocidade antes de acabar: \(self.velocity)")
-        delegate?.fireBow(vector: self.velocity)
-        self.resetVelocity()
         if abs(velocity.x) > 25 || abs(velocity.y) > 25 {
+            delegate?.fireBow(vector: self.velocity)
             delegate?.toogleShot()
         }
+        self.resetVelocity()
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
