@@ -4,8 +4,11 @@ import SpriteKit
 let kSoundState = "kSoundState"
 
 enum SoundFileName: String {
-    case hurtMan = "hurtMan.mp3"
+    case hurtMan = "hurt-human.mp3"
     case Background = "theme.mp3"
+    case hurtMamute = "hurt-mammuth.mp3"
+    case bowShot = "sound-bow.mp3"
+    case soundMamute = "sound-mammuth.mp3"
 }
 
 class ArcherRunPlayerStats {

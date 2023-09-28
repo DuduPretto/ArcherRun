@@ -61,7 +61,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         self.bowJoystick.delegate = self
         
         //BackGroudMusic
-        ArcherRunPlayerStats.shared.setSounds(false)
+        ArcherRunPlayerStats.shared.setSounds(true)
         
         physicsWorld.gravity = CGVector(dx: 0, dy: -9.8)
         physicsWorld.contactDelegate = self
@@ -161,8 +161,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         for touch in touches {
             let location = touch.location(in: self)
             let locationInCam = convert(location, to: cam)
-//            self.run(SoundFileName.TapFile.rawValue, onNode: self)
-
+            
             if leftButton.contains(locationInCam) {
                 isLeftButtonPressed = false
                 character.physicsBody?.velocity.dx = 0
@@ -257,6 +256,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
 
     func toogleShot() {
         if isShooting == true {
+            self.run(SoundFileName.bowShot.rawValue, onNode: self)
             stopAnimationShot()
         }
         
@@ -297,6 +297,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
             }
             if let enemyNode = contact.bodyB.node {
                 enemyNode.removeFromParent()
+                self.run(SoundFileName.hurtMamute.rawValue, onNode: self)
             }
         }
         
@@ -305,8 +306,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
             
             // Reduce character's life
             characterLife -= 1
+            self.run(SoundFileName.hurtMan.rawValue, onNode: self)
             updateLifeLabel()
-            
             
             if(contact.bodyA.categoryBitMask == PhysicsCategory.character){
                 
@@ -435,6 +436,9 @@ extension GameScene {
                 
                 addChild(enemy)
                 enemies.append(enemy)
+//                self.run(SKAction.wait(forDuration: 5)){
+//                    self.run(SoundFileName.soundMamute.rawValue, onNode: self)
+//                }
             }
         }
 
@@ -506,10 +510,9 @@ extension GameScene: FireBowDelegate {
     
     func fireBow(vector: CGPoint) {
         
-        let bullet = SKSpriteNode(imageNamed: "Arrow")
+        let bullet = SKSpriteNode(imageNamed: "arrow")
         let xOffset: CGFloat = isCharacterFacingRight ? 20.0 : -20.0
         bullet.position = CGPoint(x: character.position.x + xOffset, y: character.position.y)
-        
         
         let bulletSpeed: CGFloat = 15
         let bulletVelocity = CGVector(dx: bulletSpeed * -vector.x, dy: bulletSpeed * -vector.y)
