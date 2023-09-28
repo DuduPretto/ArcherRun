@@ -20,6 +20,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     let leftButton = SKSpriteNode(imageNamed: "Left")
     let rightButton = SKSpriteNode(imageNamed: "Right")
     let fireButton = SKSpriteNode(imageNamed: "Fire")
+    let background = SKSpriteNode(imageNamed: "bg-front")
 
     var isLeftButtonPressed = false
     var isRightButtonPressed = false
@@ -62,6 +63,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         let leftWall = self.childNode(withName: "//leftWall") as? SKShapeNode
         
         
+        // Create the background node
+         
+            background.zPosition = -10
+            background.position = CGPoint(x: 0, y: 0) // Center the background
+            background.size = frame.size
+            addChild(background)
         
         self.bowJoystick.delegate = self
         
@@ -182,6 +189,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     override func update(_ currentTime: TimeInterval) {
         
         cam.position = character.position
+        
+        background.position = cam.position
         
         leftButton.position = CGPoint(x: -340, y: -130)
         rightButton.position = CGPoint(x: -240, y: -130)
