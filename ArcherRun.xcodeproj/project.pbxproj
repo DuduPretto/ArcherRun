@@ -17,8 +17,11 @@
 		6CEA099D2AC2137100F8DE60 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6CEA099B2AC2137100F8DE60 /* LaunchScreen.storyboard */; };
 		6CEA09A62AC21E8600F8DE60 /* Joystick.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CEA09A52AC21E8600F8DE60 /* Joystick.swift */; };
 		B3377B492AC347C600BDBDC3 /* ArcherRunPlayerStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3377B482AC347C600BDBDC3 /* ArcherRunPlayerStats.swift */; };
-		B3377B4C2AC34BD200BDBDC3 /* explosion.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = B3377B4A2AC34BD200BDBDC3 /* explosion.mp3 */; };
-		B3377B4D2AC34BD200BDBDC3 /* backgroudMusic.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = B3377B4B2AC34BD200BDBDC3 /* backgroudMusic.mp3 */; };
+		B3AB7D162AC60897003052D8 /* theme.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = B3AB7D152AC60897003052D8 /* theme.mp3 */; };
+		B3AB7D1B2AC608F3003052D8 /* hurt-mammuth.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = B3AB7D172AC608F3003052D8 /* hurt-mammuth.mp3 */; };
+		B3AB7D1C2AC608F3003052D8 /* sound-mammuth.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = B3AB7D182AC608F3003052D8 /* sound-mammuth.mp3 */; };
+		B3AB7D1D2AC608F3003052D8 /* sound-bow.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = B3AB7D192AC608F3003052D8 /* sound-bow.mp3 */; };
+		B3AB7D1E2AC608F3003052D8 /* hurt-human.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = B3AB7D1A2AC608F3003052D8 /* hurt-human.mp3 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,8 +36,11 @@
 		6CEA099C2AC2137100F8DE60 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		6CEA09A52AC21E8600F8DE60 /* Joystick.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Joystick.swift; sourceTree = "<group>"; };
 		B3377B482AC347C600BDBDC3 /* ArcherRunPlayerStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArcherRunPlayerStats.swift; sourceTree = "<group>"; };
-		B3377B4A2AC34BD200BDBDC3 /* explosion.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = explosion.mp3; sourceTree = "<group>"; };
-		B3377B4B2AC34BD200BDBDC3 /* backgroudMusic.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = backgroudMusic.mp3; sourceTree = "<group>"; };
+		B3AB7D152AC60897003052D8 /* theme.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = theme.mp3; sourceTree = "<group>"; };
+		B3AB7D172AC608F3003052D8 /* hurt-mammuth.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "hurt-mammuth.mp3"; sourceTree = "<group>"; };
+		B3AB7D182AC608F3003052D8 /* sound-mammuth.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "sound-mammuth.mp3"; sourceTree = "<group>"; };
+		B3AB7D192AC608F3003052D8 /* sound-bow.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "sound-bow.mp3"; sourceTree = "<group>"; };
+		B3AB7D1A2AC608F3003052D8 /* hurt-human.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "hurt-human.mp3"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,8 +73,7 @@
 		6CEA098B2AC2137000F8DE60 /* ArcherRun */ = {
 			isa = PBXGroup;
 			children = (
-				B3377B4B2AC34BD200BDBDC3 /* backgroudMusic.mp3 */,
-				B3377B4A2AC34BD200BDBDC3 /* explosion.mp3 */,
+				B3AB7D142AC60851003052D8 /* Sounds */,
 				6CEA098C2AC2137000F8DE60 /* AppDelegate.swift */,
 				6CEA098E2AC2137000F8DE60 /* GameScene.sks */,
 				6CEA09902AC2137000F8DE60 /* Actions.sks */,
@@ -81,6 +86,18 @@
 				B3377B482AC347C600BDBDC3 /* ArcherRunPlayerStats.swift */,
 			);
 			path = ArcherRun;
+			sourceTree = "<group>";
+		};
+		B3AB7D142AC60851003052D8 /* Sounds */ = {
+			isa = PBXGroup;
+			children = (
+				B3AB7D152AC60897003052D8 /* theme.mp3 */,
+				B3AB7D1A2AC608F3003052D8 /* hurt-human.mp3 */,
+				B3AB7D172AC608F3003052D8 /* hurt-mammuth.mp3 */,
+				B3AB7D192AC608F3003052D8 /* sound-bow.mp3 */,
+				B3AB7D182AC608F3003052D8 /* sound-mammuth.mp3 */,
+			);
+			path = Sounds;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -141,13 +158,16 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B3377B4C2AC34BD200BDBDC3 /* explosion.mp3 in Resources */,
+				B3AB7D1C2AC608F3003052D8 /* sound-mammuth.mp3 in Resources */,
 				6CEA09982AC2137000F8DE60 /* Main.storyboard in Resources */,
+				B3AB7D162AC60897003052D8 /* theme.mp3 in Resources */,
 				6CEA098F2AC2137000F8DE60 /* GameScene.sks in Resources */,
-				B3377B4D2AC34BD200BDBDC3 /* backgroudMusic.mp3 in Resources */,
 				6CEA099A2AC2137100F8DE60 /* Assets.xcassets in Resources */,
 				6CEA099D2AC2137100F8DE60 /* LaunchScreen.storyboard in Resources */,
 				6CEA09912AC2137000F8DE60 /* Actions.sks in Resources */,
+				B3AB7D1B2AC608F3003052D8 /* hurt-mammuth.mp3 in Resources */,
+				B3AB7D1E2AC608F3003052D8 /* hurt-human.mp3 in Resources */,
+				B3AB7D1D2AC608F3003052D8 /* sound-bow.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
