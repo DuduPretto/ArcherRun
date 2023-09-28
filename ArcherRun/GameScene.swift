@@ -13,6 +13,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
     
     var score = 0
     let scoreLabel = SKLabelNode(fontNamed: "Arial")
+    let lifeLabel = SKLabelNode(fontNamed: "Arial")
     let character = SKSpriteNode(imageNamed: "CharacterWalk1")
     let ground = SKSpriteNode(imageNamed: "Ground")
     let jumpButton = SKSpriteNode(imageNamed: "Jump")
@@ -37,6 +38,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
     let enemySpawnRate: TimeInterval = 2.0
     var lastSpawnTime: TimeInterval = 0.0
     var isShooting: Bool = false
+    
+    var characterLife = 3
     
 //    let frames:[SKTexture] = createTexture("Character")
     
@@ -70,14 +73,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
         scoreLabel.text = "Score: \(score)"
         scoreLabel.fontSize = 24
         scoreLabel.position = CGPoint(x: 0, y: 160)
-        addChild(scoreLabel)
+        cam.addChild(scoreLabel)
+        
+        //Life
+        lifeLabel.text = "Lives: \(characterLife)"
+        lifeLabel.fontSize = 24
+        lifeLabel.position = CGPoint(x: 300, y: 160)
+        cam.addChild(lifeLabel)
         
         // Personagem
         character.position = CGPoint(x: 0, y: 100)
         character.physicsBody = SKPhysicsBody(rectangleOf: character.size)
         character.physicsBody?.categoryBitMask = PhysicsCategory.character
-        character.physicsBody?.collisionBitMask = PhysicsCategory.ground
-        character.physicsBody?.contactTestBitMask = PhysicsCategory.bullet
+        character.physicsBody?.collisionBitMask = PhysicsCategory.ground | PhysicsCategory.enemy
+        character.physicsBody?.contactTestBitMask = PhysicsCategory.enemy
         character.physicsBody?.affectedByGravity = true
         character.physicsBody?.allowsRotation = false
         addChild(character)
@@ -131,6 +140,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
             }
         }
     }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        for touch in touches {
+            let location = touch.location(in: self)
+            let locationInCam = convert(location, to: cam)
+
+            if !leftButton.contains(locationInCam) {
+                isLeftButtonPressed = false
+                
+            }
+            
+            if !rightButton.contains(locationInCam) {
+                isRightButtonPressed = false
+               
+            }
+        }
+    }
+
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches {
@@ -249,34 +276,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
 
         bullet.physicsBody?.velocity = bulletVelocity
     }
-    
-    func spawnEnemy() {
-        let minDistanceToCharacter: CGFloat = 30.0
-
-        var enemyPosition = randomSpawnPosition()
-        var distanceToCharacter = abs(character.position.x - enemyPosition.x)
-
-        while distanceToCharacter < minDistanceToCharacter {
-            enemyPosition = randomSpawnPosition()
-            distanceToCharacter = abs(character.position.x - enemyPosition.x)
-        }
-
-        let enemy = SKSpriteNode(imageNamed: "Enemy")
-        enemy.zPosition = -1
-        enemy.position = enemyPosition
-        addChild(enemy)
-
-        let randomMoveX = CGFloat.random(in: -100.0...100.0)
-        let randomMoveY = CGFloat.random(in: -100.0...100.0)
-        let moveAction = SKAction.moveBy(x: randomMoveX, y: randomMoveY, duration: 2.0)
-        enemy.run(SKAction.repeatForever(moveAction))
-
-        enemy.physicsBody = SKPhysicsBody(rectangleOf: enemy.size)
-        enemy.physicsBody?.affectedByGravity = false
-        enemy.physicsBody?.categoryBitMask = PhysicsCategory.enemy
-        enemy.physicsBody?.collisionBitMask = 0
-        enemy.physicsBody?.contactTestBitMask = PhysicsCategory.bullet
-    }
 
     
     func randomSpawnPosition() -> CGPoint {
@@ -295,6 +294,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
         scoreLabel.text = "Score: \(score)"
     }
     
+    func updateLifeLabel() {
+        lifeLabel.text = "Lives: \(characterLife)"
+    }
+    
     func didBegin(_ contact: SKPhysicsContact) {
         
         if (contact.bodyA.categoryBitMask == PhysicsCategory.bullet && contact.bodyB.categoryBitMask == PhysicsCategory.enemy) ||
@@ -310,6 +313,46 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
                 enemyNode.removeFromParent()
             }
         }
+        
+        if (contact.bodyA.categoryBitMask == PhysicsCategory.character && contact.bodyB.categoryBitMask == PhysicsCategory.enemy) ||
+            (contact.bodyA.categoryBitMask == PhysicsCategory.enemy && contact.bodyB.categoryBitMask == PhysicsCategory.character) {
+            
+            // Reduce character's life
+            characterLife -= 1
+            updateLifeLabel()
+            
+            
+            if(contact.bodyA.categoryBitMask == PhysicsCategory.character){
+                
+                contact.bodyB.node?.removeFromParent()
+            } else {
+                contact.bodyA.node?.removeFromParent()
+            }
+            
+        
+            print("hit")
+                
+                // Check if character has run out of life
+                if characterLife <= 0 {
+                    // Character has no life left, handle game over logic here
+                    gameOver()
+                }
+            }
+    }
+    
+    func gameOver() {
+        // Display a game over message or perform other actions
+        print("Game Over")
+        
+        // Reset the score and character life
+        score = 0
+        characterLife = 3
+        updateScoreLabel()
+        updateLifeLabel()
+        
+        // Restart the game or navigate to the main menu as needed
+        // For example, you can call a function to restart the game:
+        // restartGame()
     }
         
     func run(_ fileName: String, onNode: SKNode) {
@@ -491,7 +534,7 @@ class Enemy: SKSpriteNode {
     private func configurePhysics() {
         physicsBody = SKPhysicsBody(rectangleOf: size)
         physicsBody?.categoryBitMask = PhysicsCategory.enemy
-        //physicsBody?.collisionBitMask = PhysicsCategory.ground
+        physicsBody?.collisionBitMask = PhysicsCategory.character | PhysicsCategory.ground
         physicsBody?.contactTestBitMask = PhysicsCategory.character
         physicsBody?.affectedByGravity = true
         physicsBody?.allowsRotation = false
