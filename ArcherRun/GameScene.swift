@@ -112,12 +112,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         
         leftButton.position = CGPoint(x: -340, y: -130)
         leftButton.zPosition = 100
+        leftButton.size = CGSize(width: 80, height: 60)
         cam.addChild(leftButton)
 
         rightButton.position = CGPoint(x: -240, y: -130)
+        rightButton.size = CGSize(width: 80, height: 60)
         cam.addChild(rightButton)
        
         jumpButton.position = CGPoint(x: 340, y: -130)
+        jumpButton.size = CGSize(width: 60, height: 80)
         cam.addChild(jumpButton)
 
         //bow joystick
