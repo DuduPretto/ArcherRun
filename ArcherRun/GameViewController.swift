@@ -11,7 +11,7 @@ import GameplayKit
 import AVFoundation
 
 class GameViewController: UIViewController {
-
+    
     lazy var backgroundMusic: AVAudioPlayer? = {
         guard let url = Bundle.main.url(forResource: SoundFileName.Background.rawValue, withExtension: "mp3") else { return nil }
         
@@ -27,27 +27,46 @@ class GameViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //        if let view = self.view as! SKView? {
+        //            // Load the SKScene from 'GameScene.sks'
+        //            if let scene = SKScene(fileNamed: "MainMenu") {
+        //
+        //                // Set the scale mode to scale to fit the window
+        //                scene.scaleMode = .aspectFill
+        //
+        //                // Present the scene
+        //                view.presentScene(scene)
+        //
+        //                // Play Music Background
+        //                playStopBackgroundMusic()
+        //            }
+        //
+        //            view.ignoresSiblingOrder = true
+        //
+        //            view.showsFPS = true
+        //            view.showsNodeCount = true
+        //        }
+        
         if let view = self.view as! SKView? {
-            // Load the SKScene from 'GameScene.sks'
-            if let scene = SKScene(fileNamed: "GameScene") {
-                
-                // Set the scale mode to scale to fit the window
-                scene.scaleMode = .aspectFill
-                
-                // Present the scene
-                view.presentScene(scene)
-                
-                // Play Music Background
-                playStopBackgroundMusic()
-            }
+            // Create and configure the main menu scene
+            let scene = MainMenu(size: view.bounds.size)
+            scene.scaleMode = .aspectFill
+            
+            // Present the main menu scene
+            view.presentScene(scene)
+            
+            playStopBackgroundMusic()
             
             view.ignoresSiblingOrder = true
-            
+            //
             view.showsFPS = true
             view.showsNodeCount = true
         }
+        
+        
+        
     }
-
+    
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         if UIDevice.current.userInterfaceIdiom == .phone {
             return .allButUpsideDown
@@ -55,7 +74,7 @@ class GameViewController: UIViewController {
             return .all
         }
     }
-
+    
     override var prefersStatusBarHidden: Bool {
         return true
     }

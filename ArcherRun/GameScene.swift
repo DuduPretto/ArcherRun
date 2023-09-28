@@ -55,6 +55,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     }
 
     override func didMove(to view: SKView) {
+        
+        let leftWall = self.childNode(withName: "//leftWall") as? SKShapeNode
+        
+        
+        
         self.bowJoystick.delegate = self
         
         //BackGroudMusic
