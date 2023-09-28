@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6C26F5EB2AC616830035A109 /* StoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C26F5EA2AC616830035A109 /* StoryPage.swift */; };
 		6C4547262AC5FDB300495FD2 /* MainMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C4547252AC5FDB300495FD2 /* MainMenu.swift */; };
 		6CEA098D2AC2137000F8DE60 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CEA098C2AC2137000F8DE60 /* AppDelegate.swift */; };
 		6CEA098F2AC2137000F8DE60 /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 6CEA098E2AC2137000F8DE60 /* GameScene.sks */; };
@@ -26,6 +27,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6C26F5EA2AC616830035A109 /* StoryPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryPage.swift; sourceTree = "<group>"; };
 		6C4547252AC5FDB300495FD2 /* MainMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainMenu.swift; sourceTree = "<group>"; };
 		6CEA09892AC2137000F8DE60 /* ArcherRun.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ArcherRun.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6CEA098C2AC2137000F8DE60 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -60,6 +62,7 @@
 			isa = PBXGroup;
 			children = (
 				6C4547252AC5FDB300495FD2 /* MainMenu.swift */,
+				6C26F5EA2AC616830035A109 /* StoryPage.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -190,6 +193,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6CEA09932AC2137000F8DE60 /* GameScene.swift in Sources */,
+				6C26F5EB2AC616830035A109 /* StoryPage.swift in Sources */,
 				6C4547262AC5FDB300495FD2 /* MainMenu.swift in Sources */,
 				6CEA09A62AC21E8600F8DE60 /* Joystick.swift in Sources */,
 				6CEA09952AC2137000F8DE60 /* GameViewController.swift in Sources */,
