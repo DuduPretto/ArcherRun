@@ -95,9 +95,11 @@ class BowJoystick: Joystick{
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?){
         print("velocidade antes de acabar: \(self.velocity)")
-        delegate?.fireBow(vector: self.velocity)
+        if abs(velocity.x) > 25 || abs(velocity.y) > 25 {
+            delegate?.fireBow(vector: self.velocity)
+            delegate?.toogleShot()
+        }
         self.resetVelocity()
-        delegate?.toogleShot()
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -119,8 +121,10 @@ class BowJoystick: Joystick{
             }
             self.velocity = CGPointMake(((self.thumbNode.position.x - self.anchorPointInPoints().x)), ((self.thumbNode.position.y - self.anchorPointInPoints().y)))
             self.angularVelocity = -atan2(self.thumbNode.position.x - self.anchorPointInPoints().x, self.thumbNode.position.y - self.anchorPointInPoints().y)
-            
-            delegate?.drawDottetLine(initialVelocityPoint: velocity, gravity: 6.8)
+            print(velocity)
+            if abs(velocity.x) > 25 || abs(velocity.y) > 25  {
+                delegate?.drawDottedLine(initialVelocityPoint: velocity, gravity: 6.8)
+            }
         }
     }
 }
@@ -128,7 +132,7 @@ class BowJoystick: Joystick{
 protocol FireBowDelegate: AnyObject{
     func fireBow(vector: CGPoint)
     func toogleShot()
-    func drawDottetLine(initialVelocityPoint: CGPoint, gravity: CGFloat)
+    func drawDottedLine(initialVelocityPoint: CGPoint, gravity: CGFloat)
 }
 
 

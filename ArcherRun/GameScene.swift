@@ -7,7 +7,7 @@ struct PhysicsCategory {
     static let ground: UInt32 = 0x1 << 3
 }
 
-class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
+class GameScene: SKScene, SKPhysicsContactDelegate{
     var lastJumpTime: TimeInterval = 0.0
     let jumpCooldown: TimeInterval = 0.5
     
@@ -61,7 +61,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
         self.bowJoystick.delegate = self
         
         //BackGroudMusic
-        ArcherRunPlayerStats.shared.setSounds(true)
+        ArcherRunPlayerStats.shared.setSounds(false)
         
         physicsWorld.gravity = CGVector(dx: 0, dy: -9.8)
         physicsWorld.contactDelegate = self
@@ -362,63 +362,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate, FireBowDelegate {
         }
     }
 
-    func fireBow(vector: CGPoint) {
-        
-        let bullet = SKSpriteNode(imageNamed: "Button")
-        let xOffset: CGFloat = isCharacterFacingRight ? 20.0 : -20.0
-           bullet.position = CGPoint(x: character.position.x + xOffset, y: character.position.y)
-
-       
-        let bulletSpeed: CGFloat = 15
-        let bulletVelocity = CGVector(dx: bulletSpeed * -vector.x, dy: bulletSpeed * -vector.y)
-
-        bullet.physicsBody = SKPhysicsBody(rectangleOf: bullet.size)
-        bullet.physicsBody?.affectedByGravity = true
-        bullet.physicsBody?.categoryBitMask = PhysicsCategory.bullet
-        bullet.physicsBody?.contactTestBitMask = PhysicsCategory.enemy
-        bullet.physicsBody?.collisionBitMask = PhysicsCategory.enemy
-
-        addChild(bullet)
-
-        bullet.physicsBody?.velocity = bulletVelocity
-        
-        self.run(SKAction.wait(forDuration: 2)) {
-            bullet.removeFromParent()
-        }
-    }
  
     
-    func drawDottetLine(initialVelocityPoint: CGPoint, gravity: CGFloat = 6.8) {
-//        for dot in aimLine{
-//            dot.removeFromParent()
-//        }
-//        let dotSpacing: CGFloat = 10
-//        let scene = self
-//        // Create and add dots along the trajectory
-//        var currentPosition = CGPoint.zero
-//        var currentVelocity = CGPoint(x: initialVelocityPoint.x * 1, y: initialVelocityPoint.y * 1)
-//        
-//        // Calculate the time it takes to reach the next dot's position
-//        let totalTime = currentVelocity.y / gravity
-//        let timeToNextDot = totalTime / dotSpacing
-//        
-//        while currentPosition.y >= 0 {
-//            let dot = SKShapeNode(circleOfRadius: 2)
-//            dot.fillColor = SKColor.blue
-//            dot.name = "dot"
-//            dot.position = CGPoint(x: currentPosition.x + character.position.x, y: currentPosition.y + character.position.y)
-//            scene.addChild(dot)
-//            aimLine.append(dot)
-//            
-//            // Update the position and velocity for the next dot
-//            currentPosition.x += currentVelocity.x * timeToNextDot
-//            currentPosition.y += currentVelocity.y * timeToNextDot - 0.5 * gravity * (timeToNextDot * timeToNextDot)
-//            currentVelocity.y -= gravity * timeToNextDot
-//            scene.run(SKAction.wait(forDuration: 1)) {
-//                dot.removeFromParent()
-//            }
-//        }
-    }
+    
 }
 
 // Joystick
@@ -576,3 +522,80 @@ class Enemy: SKSpriteNode {
             }
         }
 }
+
+extension GameScene: FireBowDelegate {
+    
+    func fireBow(vector: CGPoint) {
+        
+        let bullet = SKSpriteNode(imageNamed: "Button")
+        let xOffset: CGFloat = isCharacterFacingRight ? 20.0 : -20.0
+        bullet.position = CGPoint(x: character.position.x + xOffset, y: character.position.y)
+        
+        
+        let bulletSpeed: CGFloat = 15
+        let bulletVelocity = CGVector(dx: bulletSpeed * -vector.x, dy: bulletSpeed * -vector.y)
+        
+        bullet.physicsBody = SKPhysicsBody(rectangleOf: bullet.size)
+        bullet.physicsBody?.affectedByGravity = true
+        bullet.physicsBody?.categoryBitMask = PhysicsCategory.bullet
+        bullet.physicsBody?.contactTestBitMask = PhysicsCategory.enemy
+        bullet.physicsBody?.collisionBitMask = PhysicsCategory.enemy
+        
+        addChild(bullet)
+        
+        bullet.physicsBody?.velocity = bulletVelocity
+        
+        self.run(SKAction.wait(forDuration: 2)) {
+            bullet.removeFromParent()
+        }
+        for dot in aimLine{
+            self.run(SKAction.wait(forDuration: 1)) {
+                dot.removeFromParent()
+            }
+        }
+    }
+    
+    func drawDottedLine(initialVelocityPoint: CGPoint, gravity: CGFloat = 6.8) {
+        for dot in aimLine{
+            dot.removeFromParent()
+        }
+        aimLine = []
+        
+        let xOffset: CGFloat = isCharacterFacingRight ? 20.0 : -20.0
+        
+        let dotSpacing: CGFloat = 10
+        let scene = self
+        // Create and add dots along the trajectory
+        var currentPosition = CGPoint.zero
+        var currentVelocity = CGPoint(x: initialVelocityPoint.x, y: initialVelocityPoint.y)
+        
+        // Calculate the time it takes to reach the next dot's position
+        let totalTime = currentVelocity.y / gravity
+        let timeToNextDot = totalTime / dotSpacing
+        print(initialVelocityPoint.y)
+        //        if initialVelocityPoint.y < 0 {
+//        if initialVelocityPoint.y < 0 {
+            while currentPosition.y >= 0 {
+                let dot = SKShapeNode(circleOfRadius: 2)
+                dot.fillColor = SKColor.blue
+                dot.name = "dot"
+                dot.position = CGPoint(x: currentPosition.x + character.position.x + xOffset, y: currentPosition.y + character.position.y)
+                scene.addChild(dot)
+                aimLine.append(dot)
+                
+                // Update the position and velocity for the next dot
+                currentPosition.x += currentVelocity.x * timeToNextDot
+                currentPosition.y += currentVelocity.y * timeToNextDot - 0.5 * gravity * (timeToNextDot * timeToNextDot)
+                currentVelocity.y -= gravity * timeToNextDot
+//                scene.run(SKAction.wait(forDuration: 1)) {
+//                    dot.removeFromParent()
+                if currentPosition.y == 0{
+                    break
+                }
+//                }
+            }
+//        }
+            }
+            
+        }
+    
