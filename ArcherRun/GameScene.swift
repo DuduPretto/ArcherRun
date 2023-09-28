@@ -511,7 +511,7 @@ extension GameScene: FireBowDelegate {
     
     func fireBow(vector: CGPoint) {
         
-        let bullet = SKSpriteNode(imageNamed: "Arrow")
+        let bullet = SKSpriteNode(imageNamed: "arrow")
         let xOffset: CGFloat = isCharacterFacingRight ? 20.0 : -20.0
         bullet.position = CGPoint(x: character.position.x + xOffset, y: character.position.y)
         
