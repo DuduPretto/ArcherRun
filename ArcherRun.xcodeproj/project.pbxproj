@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		6C4547242AC5FD1A00495FD2 /* MainMenu.sks in Resources */ = {isa = PBXBuildFile; fileRef = 6C4547232AC5FD1A00495FD2 /* MainMenu.sks */; };
 		6C4547262AC5FDB300495FD2 /* MainMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C4547252AC5FDB300495FD2 /* MainMenu.swift */; };
 		6CEA098D2AC2137000F8DE60 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CEA098C2AC2137000F8DE60 /* AppDelegate.swift */; };
 		6CEA098F2AC2137000F8DE60 /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 6CEA098E2AC2137000F8DE60 /* GameScene.sks */; };
@@ -27,7 +26,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		6C4547232AC5FD1A00495FD2 /* MainMenu.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = MainMenu.sks; sourceTree = "<group>"; };
 		6C4547252AC5FDB300495FD2 /* MainMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainMenu.swift; sourceTree = "<group>"; };
 		6CEA09892AC2137000F8DE60 /* ArcherRun.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ArcherRun.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6CEA098C2AC2137000F8DE60 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -61,7 +59,6 @@
 		6C4547222AC5FB9C00495FD2 /* UI */ = {
 			isa = PBXGroup;
 			children = (
-				6C4547232AC5FD1A00495FD2 /* MainMenu.sks */,
 				6C4547252AC5FDB300495FD2 /* MainMenu.swift */,
 			);
 			path = UI;
@@ -177,7 +174,6 @@
 				B3AB7D162AC60897003052D8 /* theme.mp3 in Resources */,
 				6CEA098F2AC2137000F8DE60 /* GameScene.sks in Resources */,
 				6CEA099A2AC2137100F8DE60 /* Assets.xcassets in Resources */,
-				6C4547242AC5FD1A00495FD2 /* MainMenu.sks in Resources */,
 				6CEA099D2AC2137100F8DE60 /* LaunchScreen.storyboard in Resources */,
 				6CEA09912AC2137000F8DE60 /* Actions.sks in Resources */,
 				B3AB7D1B2AC608F3003052D8 /* hurt-mammuth.mp3 in Resources */,
