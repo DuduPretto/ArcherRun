@@ -13,6 +13,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     
     var score = 0
     let scoreLabel = SKLabelNode(fontNamed: "Arial")
+    let lifeLabel = SKLabelNode(fontNamed: "Arial")
     let character = SKSpriteNode(imageNamed: "CharacterWalk1")
     let ground = SKSpriteNode(imageNamed: "Ground")
     let jumpButton = SKSpriteNode(imageNamed: "Jump")
@@ -37,6 +38,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     let enemySpawnRate: TimeInterval = 2.0
     var lastSpawnTime: TimeInterval = 0.0
     var isShooting: Bool = false
+    
+    var characterLife = 3
     
 //    let frames:[SKTexture] = createTexture("Character")
     
@@ -75,14 +78,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         scoreLabel.text = "Score: \(score)"
         scoreLabel.fontSize = 24
         scoreLabel.position = CGPoint(x: 0, y: 160)
-        addChild(scoreLabel)
+        cam.addChild(scoreLabel)
+        
+        //Life
+        lifeLabel.text = "Lives: \(characterLife)"
+        lifeLabel.fontSize = 24
+        lifeLabel.position = CGPoint(x: 300, y: 160)
+        cam.addChild(lifeLabel)
         
         // Personagem
         character.position = CGPoint(x: 0, y: 100)
         character.physicsBody = SKPhysicsBody(rectangleOf: character.size)
         character.physicsBody?.categoryBitMask = PhysicsCategory.character
-        character.physicsBody?.collisionBitMask = PhysicsCategory.ground
-        character.physicsBody?.contactTestBitMask = PhysicsCategory.bullet
+        character.physicsBody?.collisionBitMask = PhysicsCategory.ground | PhysicsCategory.enemy
+        character.physicsBody?.contactTestBitMask = PhysicsCategory.enemy
         character.physicsBody?.affectedByGravity = true
         character.physicsBody?.allowsRotation = false
         addChild(character)
@@ -131,11 +140,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
                 startAnimationRight()
             } else if jumpButton.contains(locationInCam) && !isCharacterJumping {
                 jumpCharacter()
-            } else if fireButton.contains(locationInCam) {
-                fireBullet()
             }
         }
     }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        for touch in touches {
+            let location = touch.location(in: self)
+            let locationInCam = convert(location, to: cam)
+
+            if !leftButton.contains(locationInCam) {
+                isLeftButtonPressed = false
+                
+            }
+            
+            if !rightButton.contains(locationInCam) {
+                isRightButtonPressed = false
+               
+            }
+        }
+    }
+
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches {
@@ -159,9 +184,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         cam.position = character.position
         
         leftButton.position = CGPoint(x: -340, y: -130)
-           rightButton.position = CGPoint(x: -240, y: -130)
-           jumpButton.position = CGPoint(x: 340, y: -130)
-           fireButton.position = CGPoint(x: 240, y: -130)
+        rightButton.position = CGPoint(x: -240, y: -130)
+        jumpButton.position = CGPoint(x: 340, y: -130)
+        fireButton.position = CGPoint(x: 240, y: -130)
 
         if !isShooting {
             if isLeftButtonPressed {
@@ -181,6 +206,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         updateEnemyAI()
         
         character.position = CGPointMake(character.position.x + 0.1 * joystick.velocity.x, character.position.y)
+        
+        if bowJoystick.velocity.x > 0 {
+            character.xScale = -1.0
+        } else if bowJoystick.velocity.x < 0 {
+            character.xScale = 1.0
+        }
     }
     
     func createTexture(_ name: String) -> [SKTexture] {
@@ -219,10 +250,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         if currentTime - lastJumpTime >= jumpCooldown {
             let jumpForce = CGVector(dx: 0.0, dy: 4000.0)
             character.physicsBody?.applyForce(jumpForce)
-            print("jump")
             isCharacterJumping = true
             // Update the last jump time
             lastJumpTime = currentTime
+            
+            if isLeftButtonPressed || isRightButtonPressed {
+                stopAnimation()
+            }
         }
     }
 
@@ -232,55 +266,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         }
         
         isShooting.toggle()
-        
-    }
-    
-    func fireBullet() {
-        let bullet = SKSpriteNode(imageNamed: "Button")
-        let xOffset: CGFloat = isCharacterFacingRight ? 20.0 : -20.0
-           bullet.position = CGPoint(x: character.position.x + xOffset, y: character.position.y)
-
-        let bulletSpeed: CGFloat = 2000.0
-        let direction = isCharacterFacingRight ? 1.0 : -1.0
-        let bulletVelocity = CGVector(dx: bulletSpeed * direction, dy: 0)
-
-        bullet.physicsBody = SKPhysicsBody(rectangleOf: bullet.size)
-        bullet.physicsBody?.affectedByGravity = false
-        bullet.physicsBody?.categoryBitMask = PhysicsCategory.bullet
-        bullet.physicsBody?.contactTestBitMask = PhysicsCategory.enemy
-        bullet.physicsBody?.collisionBitMask = PhysicsCategory.enemy
-
-        addChild(bullet)
-
-        bullet.physicsBody?.velocity = bulletVelocity
-    }
-    
-    func spawnEnemy() {
-        let minDistanceToCharacter: CGFloat = 30.0
-
-        var enemyPosition = randomSpawnPosition()
-        var distanceToCharacter = abs(character.position.x - enemyPosition.x)
-
-        while distanceToCharacter < minDistanceToCharacter {
-            enemyPosition = randomSpawnPosition()
-            distanceToCharacter = abs(character.position.x - enemyPosition.x)
-        }
-
-        let enemy = SKSpriteNode(imageNamed: "Enemy")
-        enemy.zPosition = -1
-        enemy.position = enemyPosition
-        addChild(enemy)
-
-        let randomMoveX = CGFloat.random(in: -100.0...100.0)
-        let randomMoveY = CGFloat.random(in: -100.0...100.0)
-        let moveAction = SKAction.moveBy(x: randomMoveX, y: randomMoveY, duration: 2.0)
-        enemy.run(SKAction.repeatForever(moveAction))
-
-        enemy.physicsBody = SKPhysicsBody(rectangleOf: enemy.size)
-        enemy.physicsBody?.affectedByGravity = false
-        enemy.physicsBody?.categoryBitMask = PhysicsCategory.enemy
-        enemy.physicsBody?.collisionBitMask = 0
-        enemy.physicsBody?.contactTestBitMask = PhysicsCategory.bullet
     }
 
     
@@ -300,6 +285,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         scoreLabel.text = "Score: \(score)"
     }
     
+    func updateLifeLabel() {
+        lifeLabel.text = "Lives: \(characterLife)"
+    }
+    
     func didBegin(_ contact: SKPhysicsContact) {
         
         if (contact.bodyA.categoryBitMask == PhysicsCategory.bullet && contact.bodyB.categoryBitMask == PhysicsCategory.enemy) ||
@@ -315,18 +304,53 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
                 enemyNode.removeFromParent()
             }
         }
+        
+        if (contact.bodyA.categoryBitMask == PhysicsCategory.character && contact.bodyB.categoryBitMask == PhysicsCategory.enemy) ||
+            (contact.bodyA.categoryBitMask == PhysicsCategory.enemy && contact.bodyB.categoryBitMask == PhysicsCategory.character) {
+            
+            // Reduce character's life
+            characterLife -= 1
+            updateLifeLabel()
+            
+            
+            if(contact.bodyA.categoryBitMask == PhysicsCategory.character){
+                
+                contact.bodyB.node?.removeFromParent()
+            } else {
+                contact.bodyA.node?.removeFromParent()
+            }
+            
+        
+            print("hit")
+                
+                // Check if character has run out of life
+                if characterLife <= 0 {
+                    // Character has no life left, handle game over logic here
+                    gameOver()
+                }
+            }
+    }
+    
+    func gameOver() {
+        // Display a game over message or perform other actions
+        print("Game Over")
+        
+        // Reset the score and character life
+        score = 0
+        characterLife = 3
+        updateScoreLabel()
+        updateLifeLabel()
+        
+        // Restart the game or navigate to the main menu as needed
+        // For example, you can call a function to restart the game:
+        // restartGame()
     }
         
     func run(_ fileName: String, onNode: SKNode) {
         if ArcherRunPlayerStats.shared.getSound(){
             onNode.run(SKAction.playSoundFileNamed(fileName, waitForCompletion: false))
-
         }
     }
-
- 
-    
-    
 }
 
 // Joystick
@@ -376,11 +400,11 @@ extension GameScene {
     
     func startAnimationRight() {
         let frames:[SKTexture] = createTexture("CharacterWalk")
-        isCharacterFacingRight = true
         character.xScale = 1.0
         character.run(SKAction.repeatForever(SKAction.animate(with: frames,
                                                                    timePerFrame: TimeInterval(0.15),
                                                                    resize: true, restore: false)))
+        isCharacterFacingRight = true
     }
     
     func stopAnimation() {
@@ -409,6 +433,11 @@ extension GameScene {
 
                 let enemy = Enemy(target: character)
                 enemy.position = randomSpawnPosition()
+                let frames:[SKTexture] = createTexture("Mamutes")
+                enemy.run(SKAction.repeatForever(SKAction.animate(with: frames,
+                                                                           timePerFrame: TimeInterval(0.15),
+                                                                           resize: true, restore: false)))
+                
                 addChild(enemy)
                 enemies.append(enemy)
             }
@@ -416,9 +445,7 @@ extension GameScene {
 
         func updateEnemyAI() {
             for enemy in enemies {
-                
-                    enemy.update()
-                
+                enemy.update()
             }
         }
 }
@@ -430,7 +457,7 @@ class Enemy: SKSpriteNode {
 
     init(target: SKSpriteNode) {
         self.target = target
-        let texture = SKTexture(imageNamed: "Enemy")
+        let texture = SKTexture(imageNamed: "StandartMamute")
         super.init(texture: texture, color: .clear, size: texture.size())
         configurePhysics()
     }
@@ -442,7 +469,7 @@ class Enemy: SKSpriteNode {
     private func configurePhysics() {
         physicsBody = SKPhysicsBody(rectangleOf: size)
         physicsBody?.categoryBitMask = PhysicsCategory.enemy
-        //physicsBody?.collisionBitMask = PhysicsCategory.ground
+        physicsBody?.collisionBitMask = PhysicsCategory.character | PhysicsCategory.ground
         physicsBody?.contactTestBitMask = PhysicsCategory.character
         physicsBody?.affectedByGravity = true
         physicsBody?.allowsRotation = false
@@ -453,21 +480,16 @@ class Enemy: SKSpriteNode {
                 // Calculate vector towards the target (seek behavior)
                 let dx = target.position.x - position.x
                 let moveSpeed: CGFloat = 100.0
-               
                 
                 if(abs(dx) < 600){
                     let moveSpeed: CGFloat = 100.0
-                           physicsBody?.velocity.dx = dx > 0 ? moveSpeed : -moveSpeed
-                }
-                
-                // Check if the enemy is stuck in an obstacle
-                if isJumping {
-                    return
-                }
-                
-                if physicsBody?.velocity.dx == 0 {
-                    // Enemy is stuck; make it jump
-                    jump()
+                    if dx > 0 {
+                        physicsBody?.velocity.dx = moveSpeed
+                        self.xScale = -1.0
+                    } else {
+                        physicsBody?.velocity.dx = -moveSpeed
+                        self.xScale = 1.0
+                    }
                 }
             }
         }
@@ -489,7 +511,7 @@ extension GameScene: FireBowDelegate {
     
     func fireBow(vector: CGPoint) {
         
-        let bullet = SKSpriteNode(imageNamed: "Button")
+        let bullet = SKSpriteNode(imageNamed: "Arrow")
         let xOffset: CGFloat = isCharacterFacingRight ? 20.0 : -20.0
         bullet.position = CGPoint(x: character.position.x + xOffset, y: character.position.y)
         
@@ -502,6 +524,12 @@ extension GameScene: FireBowDelegate {
         bullet.physicsBody?.categoryBitMask = PhysicsCategory.bullet
         bullet.physicsBody?.contactTestBitMask = PhysicsCategory.enemy
         bullet.physicsBody?.collisionBitMask = PhysicsCategory.enemy
+        
+        if bowJoystick.velocity.x > 0 {
+            bullet.xScale = -1.0
+        } else if bowJoystick.velocity.x < 0 {
+            bullet.xScale = 1.0
+        }
         
         addChild(bullet)
         
@@ -536,28 +564,25 @@ extension GameScene: FireBowDelegate {
         let timeToNextDot = totalTime / dotSpacing
         print(initialVelocityPoint.y)
         //        if initialVelocityPoint.y < 0 {
-//        if initialVelocityPoint.y < 0 {
-            while currentPosition.y >= 0 {
-                let dot = SKShapeNode(circleOfRadius: 2)
-                dot.fillColor = SKColor.blue
-                dot.name = "dot"
-                dot.position = CGPoint(x: currentPosition.x + character.position.x + xOffset, y: currentPosition.y + character.position.y)
-                scene.addChild(dot)
-                aimLine.append(dot)
-                
-                // Update the position and velocity for the next dot
-                currentPosition.x += currentVelocity.x * timeToNextDot
-                currentPosition.y += currentVelocity.y * timeToNextDot - 0.5 * gravity * (timeToNextDot * timeToNextDot)
-                currentVelocity.y -= gravity * timeToNextDot
-//                scene.run(SKAction.wait(forDuration: 1)) {
-//                    dot.removeFromParent()
-                if currentPosition.y == 0{
-                    break
-                }
-//                }
-            }
-//        }
-            }
+        //        if initialVelocityPoint.y < 0 {
+        while currentPosition.y >= 0 {
+            let dot = SKShapeNode(circleOfRadius: 2)
+            dot.fillColor = SKColor.blue
+            dot.name = "dot"
+            dot.position = CGPoint(x: currentPosition.x + character.position.x + xOffset, y: currentPosition.y + character.position.y)
+            scene.addChild(dot)
+            aimLine.append(dot)
             
+            // Update the position and velocity for the next dot
+            currentPosition.x += currentVelocity.x * timeToNextDot
+            currentPosition.y += currentVelocity.y * timeToNextDot - 0.5 * gravity * (timeToNextDot * timeToNextDot)
+            currentVelocity.y -= gravity * timeToNextDot
+            //                scene.run(SKAction.wait(forDuration: 1)) {
+            //                    dot.removeFromParent()
+            if currentPosition.y == 0{
+                break
+            }
         }
-    
+    }
+}
+
