@@ -1,17 +1,9 @@
-//
-//  MainMenu.swift
-//  ArcherRun
-//
-//  Created by Eduardo Pretto on 28/09/23.
-//
-
 import SpriteKit
 import GameplayKit
 
 class MainMenu: SKScene {
     
-    
-    override func didMove(to view: SKView) {
+    func menu(){
         let background = SKSpriteNode(imageNamed: "Home")
         background.position = CGPoint(x: frame.size.width / 2, y: frame.size.height / 2)
         background.size = frame.size
@@ -27,7 +19,10 @@ class MainMenu: SKScene {
         
 //        startButton.isUserInteractionEnabled
         startButton.name = "startButton"
-
+    }
+    
+    override func didMove(to view: SKView) {
+        self.menu()
     }
     
     

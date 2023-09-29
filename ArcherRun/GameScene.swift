@@ -119,7 +119,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         rightButton.size = CGSize(width: 80, height: 60)
         cam.addChild(rightButton)
        
-        jumpButton.position = CGPoint(x: 340, y: -130)
+        jumpButton.position = CGPoint(x: 340, y: -20)
         jumpButton.size = CGSize(width: 60, height: 80)
         cam.addChild(jumpButton)
 
@@ -196,7 +196,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         
         leftButton.position = CGPoint(x: -340, y: -130)
         rightButton.position = CGPoint(x: -240, y: -130)
-        jumpButton.position = CGPoint(x: 340, y: -130)
+        jumpButton.position = CGPoint(x: 340, y: -20)
         fireButton.position = CGPoint(x: 240, y: -130)
 
         if !isShooting {
@@ -348,15 +348,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         // Display a game over message or perform other actions
         print("Game Over")
         
+        let menu = MainMenu()
+        menu.menu()
+        
         // Reset the score and character life
         score = 0
         characterLife = 3
         updateScoreLabel()
         updateLifeLabel()
         
-        // Restart the game or navigate to the main menu as needed
-        // For example, you can call a function to restart the game:
-        // restartGame()
     }
         
     func run(_ fileName: String, onNode: SKNode) {
