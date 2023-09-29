@@ -57,6 +57,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
 
         return false
     }
+    
+    func isBulletTouchingMask(mask: UInt32, node: SKSpriteNode) -> Bool {
+        
+        let contactedBodies = node.physicsBody?.allContactedBodies() ?? []
+
+        for contactedBody in contactedBodies {
+            if contactedBody.categoryBitMask == mask {
+                return true
+            }
+        }
+
+        return false
+    }
 
     override func didMove(to view: SKView) {
         
@@ -71,7 +84,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         self.bowJoystick.delegate = self
         
         //BackGroudMusic
-        ArcherRunPlayerStats.shared.setSounds(false)
+        ArcherRunPlayerStats.shared.setSounds(true)
         
         physicsWorld.gravity = CGVector(dx: 0, dy: -9.8)
         physicsWorld.contactDelegate = self
@@ -110,12 +123,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         
         leftButton.position = CGPoint(x: -340, y: -130)
         leftButton.zPosition = 100
+        leftButton.size = CGSize(width: 80, height: 60)
         cam.addChild(leftButton)
 
         rightButton.position = CGPoint(x: -240, y: -130)
+        rightButton.size = CGSize(width: 80, height: 60)
         cam.addChild(rightButton)
        
-        jumpButton.position = CGPoint(x: 340, y: -130)
+        jumpButton.position = CGPoint(x: 340, y: -20)
+        jumpButton.size = CGSize(width: 60, height: 80)
         cam.addChild(jumpButton)
 
         //bow joystick
@@ -171,8 +187,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         for touch in touches {
             let location = touch.location(in: self)
             let locationInCam = convert(location, to: cam)
-//            self.run(SoundFileName.TapFile.rawValue, onNode: self)
-
+            
             if leftButton.contains(locationInCam) {
                 isLeftButtonPressed = false
                 character.physicsBody?.velocity.dx = 0
@@ -192,7 +207,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         
         leftButton.position = CGPoint(x: -340, y: -130)
         rightButton.position = CGPoint(x: -240, y: -130)
-        jumpButton.position = CGPoint(x: 340, y: -130)
+        jumpButton.position = CGPoint(x: 340, y: -20)
         fireButton.position = CGPoint(x: 240, y: -130)
 
         if !isShooting {
@@ -218,6 +233,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
             character.xScale = -1.0
         } else if bowJoystick.velocity.x < 0 {
             character.xScale = 1.0
+        }
+        
+        for node in self.children {
+            if let arrowNode = node as? SKSpriteNode, arrowNode.name == "bullet" {
+                print("rodando")
+                updateArrowRotation(for: arrowNode)
+                
+                let isTouchingMask = isBulletTouchingMask(mask: 4294967295, node: arrowNode)
+                if isTouchingMask {
+                    arrowNode.removeFromParent()
+                }
+            }
         }
     }
     
@@ -269,6 +296,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
 
     func toogleShot() {
         if isShooting == true {
+            self.run(SoundFileName.bowShot.rawValue, onNode: self)
             stopAnimationShot()
         }
         
@@ -309,6 +337,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
             }
             if let enemyNode = contact.bodyB.node {
                 enemyNode.removeFromParent()
+                self.run(SoundFileName.hurtMamute.rawValue, onNode: self)
             }
         }
         
@@ -317,8 +346,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
             
             // Reduce character's life
             characterLife -= 1
+            self.run(SoundFileName.hurtMan.rawValue, onNode: self)
             updateLifeLabel()
-            
             
             if(contact.bodyA.categoryBitMask == PhysicsCategory.character){
                 
@@ -342,15 +371,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         // Display a game over message or perform other actions
         print("Game Over")
         
+        let menu = MainMenu()
+        menu.menu()
+        
         // Reset the score and character life
         score = 0
         characterLife = 3
         updateScoreLabel()
         updateLifeLabel()
         
-        // Restart the game or navigate to the main menu as needed
-        // For example, you can call a function to restart the game:
-        // restartGame()
     }
         
     func run(_ fileName: String, onNode: SKNode) {
@@ -447,6 +476,9 @@ extension GameScene {
                 
                 addChild(enemy)
                 enemies.append(enemy)
+//                self.run(SKAction.wait(forDuration: 5)){
+//                    self.run(SoundFileName.soundMamute.rawValue, onNode: self)
+//                }
             }
         }
 
@@ -455,12 +487,26 @@ extension GameScene {
                 enemy.update()
             }
         }
+    
+    func updateArrowRotation(for arrow: SKSpriteNode) {
+        let angle = atan2(arrow.physicsBody!.velocity.dy, arrow.physicsBody!.velocity.dx)
+        
+        var degrees = angle + CGFloat( .pi / 180.0)
+        
+        if arrow.physicsBody!.velocity.dx < 0 {
+                degrees += 270.0
+            }
+
+        arrow.zRotation = degrees
+    }
 }
 
 class Enemy: SKSpriteNode {
     var target: SKSpriteNode?
     var speeed: CGFloat = 100.0 // Adjust the speed as needed
     var isJumping = false
+    var lastDirectionChangeTime: TimeInterval = 0.0
+    let directionChangeCooldown: TimeInterval = 0.2 // Set the cooldown time to 2 seconds
 
     init(target: SKSpriteNode) {
         self.target = target
@@ -483,6 +529,11 @@ class Enemy: SKSpriteNode {
     }
 
     func update() {
+        let currentTime = CACurrentMediaTime()
+        if currentTime - lastDirectionChangeTime < directionChangeCooldown{
+            return
+        }
+        lastDirectionChangeTime = currentTime
             if let target = target {
                 // Calculate vector towards the target (seek behavior)
                 let dx = target.position.x - position.x
@@ -519,9 +570,9 @@ extension GameScene: FireBowDelegate {
     func fireBow(vector: CGPoint) {
         
         let bullet = SKSpriteNode(imageNamed: "arrow")
+        bullet.name = "bullet"
         let xOffset: CGFloat = isCharacterFacingRight ? 20.0 : -20.0
         bullet.position = CGPoint(x: character.position.x + xOffset, y: character.position.y)
-        
         
         let bulletSpeed: CGFloat = 15
         let bulletVelocity = CGVector(dx: bulletSpeed * -vector.x, dy: bulletSpeed * -vector.y)
@@ -532,11 +583,11 @@ extension GameScene: FireBowDelegate {
         bullet.physicsBody?.contactTestBitMask = PhysicsCategory.enemy
         bullet.physicsBody?.collisionBitMask = PhysicsCategory.enemy
         
-        if bowJoystick.velocity.x > 0 {
-            bullet.xScale = -1.0
-        } else if bowJoystick.velocity.x < 0 {
-            bullet.xScale = 1.0
-        }
+//        if bowJoystick.velocity.x > 0 {
+//            bullet.xScale = -1.0
+//        } else if bowJoystick.velocity.x < 0 {
+//            bullet.xScale = 1.0
+//        }
         
         addChild(bullet)
         
