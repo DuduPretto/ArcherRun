@@ -57,6 +57,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
 
         return false
     }
+    
+    func isBulletTouchingMask(mask: UInt32, node: SKSpriteNode) -> Bool {
+        
+        let contactedBodies = node.physicsBody?.allContactedBodies() ?? []
+
+        for contactedBody in contactedBodies {
+            if contactedBody.categoryBitMask == mask {
+                return true
+            }
+        }
+
+        return false
+    }
 
     override func didMove(to view: SKView) {
         
@@ -222,6 +235,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
             character.xScale = -1.0
         } else if bowJoystick.velocity.x < 0 {
             character.xScale = 1.0
+        }
+        
+        for node in self.children {
+            if let arrowNode = node as? SKSpriteNode, arrowNode.name == "bullet" {
+                print("rodando")
+                updateArrowRotation(for: arrowNode)
+                
+                let isTouchingMask = isBulletTouchingMask(mask: 4294967295, node: arrowNode)
+                if isTouchingMask {
+                    arrowNode.removeFromParent()
+                }
+            }
         }
     }
     
@@ -464,12 +489,26 @@ extension GameScene {
                 enemy.update()
             }
         }
+    
+    func updateArrowRotation(for arrow: SKSpriteNode) {
+        let angle = atan2(arrow.physicsBody!.velocity.dy, arrow.physicsBody!.velocity.dx)
+        
+        var degrees = angle + CGFloat( .pi / 180.0)
+        
+        if arrow.physicsBody!.velocity.dx < 0 {
+                degrees += 270.0
+            }
+
+        arrow.zRotation = degrees
+    }
 }
 
 class Enemy: SKSpriteNode {
     var target: SKSpriteNode?
     var speeed: CGFloat = 100.0 // Adjust the speed as needed
     var isJumping = false
+    var lastDirectionChangeTime: TimeInterval = 0.0
+    let directionChangeCooldown: TimeInterval = 0.2 // Set the cooldown time to 2 seconds
 
     init(target: SKSpriteNode) {
         self.target = target
@@ -492,6 +531,11 @@ class Enemy: SKSpriteNode {
     }
 
     func update() {
+        let currentTime = CACurrentMediaTime()
+        if currentTime - lastDirectionChangeTime < directionChangeCooldown{
+            return
+        }
+        lastDirectionChangeTime = currentTime
             if let target = target {
                 // Calculate vector towards the target (seek behavior)
                 let dx = target.position.x - position.x
@@ -528,6 +572,7 @@ extension GameScene: FireBowDelegate {
     func fireBow(vector: CGPoint) {
         
         let bullet = SKSpriteNode(imageNamed: "arrow")
+        bullet.name = "bullet"
         let xOffset: CGFloat = isCharacterFacingRight ? 20.0 : -20.0
         bullet.position = CGPoint(x: character.position.x + xOffset, y: character.position.y)
         
@@ -540,11 +585,11 @@ extension GameScene: FireBowDelegate {
         bullet.physicsBody?.contactTestBitMask = PhysicsCategory.enemy
         bullet.physicsBody?.collisionBitMask = PhysicsCategory.enemy
         
-        if bowJoystick.velocity.x > 0 {
-            bullet.xScale = -1.0
-        } else if bowJoystick.velocity.x < 0 {
-            bullet.xScale = 1.0
-        }
+//        if bowJoystick.velocity.x > 0 {
+//            bullet.xScale = -1.0
+//        } else if bowJoystick.velocity.x < 0 {
+//            bullet.xScale = 1.0
+//        }
         
         addChild(bullet)
         
