@@ -60,8 +60,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
 
     override func didMove(to view: SKView) {
         
-        let leftWall = self.childNode(withName: "//leftWall") as? SKShapeNode
-        
         
         // Create the background node
          
@@ -488,7 +486,7 @@ class Enemy: SKSpriteNode {
             if let target = target {
                 // Calculate vector towards the target (seek behavior)
                 let dx = target.position.x - position.x
-                let moveSpeed: CGFloat = 100.0
+//                let moveSpeed: CGFloat = 100.0
                 
                 if(abs(dx) < 600){
                     let moveSpeed: CGFloat = 100.0
@@ -576,7 +574,7 @@ extension GameScene: FireBowDelegate {
         //        if initialVelocityPoint.y < 0 {
         while currentPosition.y >= 0 {
             let dot = SKShapeNode(circleOfRadius: 2)
-            dot.fillColor = SKColor.blue
+            dot.fillColor = SKColor.white
             dot.name = "dot"
             dot.position = CGPoint(x: currentPosition.x + character.position.x + xOffset, y: currentPosition.y + character.position.y)
             scene.addChild(dot)

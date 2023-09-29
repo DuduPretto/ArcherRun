@@ -17,22 +17,20 @@ class StoryPage: SKScene {
         background.size = frame.size
         addChild(background)
         
-        let startButton = SKSpriteNode(imageNamed: "start")
-//        let texture = SKTexture(image: UIImage(named: "play"))
-//        startButton.fillTexture = texture
+        let beginButton = SKSpriteNode(imageNamed: "start")
         
-        startButton.position = CGPoint(x: size.width/2, y: (size.height / 6))
-        startButton.zPosition = 2
-        addChild(startButton)
+        beginButton.position = CGPoint(x: size.width/2, y: (size.height / 6) + 10)
+        beginButton.zPosition = 2
+        addChild(beginButton)
         
         let backButton = SKSpriteNode(imageNamed: "back")
-        startButton.position = CGPoint(x: size.width/2, y: (size.height / 6))
-        startButton.zPosition = 2
-        addChild(startButton)
+        backButton.position = CGPoint(x: 100, y: size.height - 50)
+        backButton.zPosition = 2
+        addChild(backButton)
         backButton.name = "backButton"
         
 //        startButton.isUserInteractionEnabled
-        startButton.name = "startButton"
+        beginButton.name = "beginGame"
 
     }
     
@@ -54,7 +52,7 @@ class StoryPage: SKScene {
             let location = t.location(in: self)
             let node = atPoint(location)
             
-            if node.name == "startButton"{
+            if node.name == "beginGame"{
                 let gameScene = GameScene(fileNamed: "GameScene")
                 gameScene!.scaleMode = .aspectFill
                 
@@ -63,13 +61,13 @@ class StoryPage: SKScene {
                 view?.presentScene(gameScene!, transition: transition)
             }
             
-            if node.name == "back"{
-                let gameScene = GameScene(fileNamed: "MainMenu")
-                gameScene!.scaleMode = .aspectFill
+            if node.name == "backButton"{
+                let transitionScene = MainMenu(size: frame.size)
+                transitionScene.scaleMode = .aspectFill
                 
                 // Transition to the game scene
                 let transition = SKTransition.fade(withDuration: 1.0)
-                view?.presentScene(gameScene!, transition: transition)
+                view?.presentScene(transitionScene, transition: transition)
             }
         }
     }

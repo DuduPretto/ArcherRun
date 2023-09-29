@@ -21,7 +21,7 @@ class MainMenu: SKScene {
 //        let texture = SKTexture(image: UIImage(named: "play"))
 //        startButton.fillTexture = texture
         
-        startButton.position = CGPoint(x: size.width/2, y: (size.height / 6))
+        startButton.position = CGPoint(x: size.width/2, y: (size.height / 6) + 10)
         startButton.zPosition = 2
         addChild(startButton)
         
@@ -49,12 +49,18 @@ class MainMenu: SKScene {
             let node = atPoint(location)
             
             if node.name == "startButton"{
-                let gameScene = GameScene(fileNamed: "GameScene")
-                gameScene!.scaleMode = .aspectFill
+//                let gameScene = GameScene(fileNamed: "GameScene")
+//                gameScene!.scaleMode = .aspectFill
+//
+//                // Transition to the game scene
+//                let transition = SKTransition.fade(withDuration: 1.0)
+//                view?.presentScene(gameScene!, transition: transition)
                 
-                // Transition to the game scene
+                let newScene = StoryPage(size: frame.size)
+                newScene.scaleMode = .aspectFill
                 let transition = SKTransition.fade(withDuration: 1.0)
-                view?.presentScene(gameScene!, transition: transition)
+                print(newScene.children)
+                self.view?.presentScene(newScene, transition: transition)
             }
         }
     }
